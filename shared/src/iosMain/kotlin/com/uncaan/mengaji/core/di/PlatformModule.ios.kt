@@ -1,5 +1,6 @@
 package com.uncaan.mengaji.core.di
 
+import com.uncaan.mengaji.core.audio.AyahAudioPlayer
 import org.koin.dsl.module
 
 /**
@@ -8,5 +9,5 @@ import org.koin.dsl.module
  * Registers native iOS dependencies and platform bindings.
  */
 actual val platformModule = module {
-    // iOS-specific bindings
+    single { AyahAudioPlayer() }
 }
