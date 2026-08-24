@@ -22,16 +22,17 @@ import platform.Foundation.NSURL
  *
  * @see AyahAudioPlayer
  * @see AudioState
+ * @see AudioPlayer
  */
 @OptIn(ExperimentalForeignApi::class)
-actual class AyahAudioPlayer {
+actual class AyahAudioPlayer : AudioPlayer {
 
     private val _audioState = MutableStateFlow<AudioState>(AudioState.Idle)
 
     /**
      * Observable playback state emitted as a [StateFlow].
      */
-    actual val audioState: StateFlow<AudioState> = _audioState.asStateFlow()
+    actual override val audioState: StateFlow<AudioState> = _audioState.asStateFlow()
 
     private var player: AVPlayer = AVPlayer()
 
@@ -50,7 +51,7 @@ actual class AyahAudioPlayer {
      *
      * @param url The HTTPS URL of the audio file to stream.
      */
-    actual fun play(url: String) {
+    actual override fun play(url: String) {
         val nsUrl = NSURL.URLWithString(url) ?: run {
             _audioState.value = AudioState.Error("Invalid audio URL")
             return
@@ -65,7 +66,7 @@ actual class AyahAudioPlayer {
     /**
      * Pauses the current playback.
      */
-    actual fun pause() {
+    actual override fun pause() {
         player.pause()
         _audioState.value = AudioState.Paused
     }
@@ -73,7 +74,7 @@ actual class AyahAudioPlayer {
     /**
      * Resumes paused playback.
      */
-    actual fun resume() {
+    actual override fun resume() {
         player.play()
         _audioState.value = AudioState.Playing
     }
@@ -81,7 +82,7 @@ actual class AyahAudioPlayer {
     /**
      * Stops playback and resets the current media item.
      */
-    actual fun stop() {
+    actual override fun stop() {
         player.pause()
         player.replaceCurrentItemWithPlayerItem(null)
         _audioState.value = AudioState.Idle
@@ -90,7 +91,7 @@ actual class AyahAudioPlayer {
     /**
      * Releases player resources and resets state to [AudioState.Idle].
      */
-    actual fun release() {
+    actual override fun release() {
         stop()
     }
 }
