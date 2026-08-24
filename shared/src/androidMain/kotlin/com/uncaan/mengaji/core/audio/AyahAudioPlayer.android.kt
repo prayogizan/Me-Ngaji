@@ -18,15 +18,16 @@ import kotlinx.coroutines.flow.asStateFlow
  * @param context The Android application context for ExoPlayer setup.
  * @see AyahAudioPlayer
  * @see AudioState
+ * @see AudioPlayer
  */
-actual class AyahAudioPlayer(context: Context) {
+actual class AyahAudioPlayer(context: Context) : AudioPlayer {
 
     private val _audioState = MutableStateFlow<AudioState>(AudioState.Idle)
 
     /**
      * Observable playback state emitted as a [StateFlow].
      */
-    actual val audioState: StateFlow<AudioState> = _audioState.asStateFlow()
+    actual override val audioState: StateFlow<AudioState> = _audioState.asStateFlow()
 
     private val player: ExoPlayer = ExoPlayer.Builder(context.applicationContext).build().apply {
         addListener(object : Player.Listener {
@@ -62,7 +63,7 @@ actual class AyahAudioPlayer(context: Context) {
      *
      * @param url The HTTPS URL of the audio file to stream.
      */
-    actual fun play(url: String) {
+    actual override fun play(url: String) {
         try {
             _audioState.value = AudioState.Buffering
             val mediaItem = MediaItem.fromUri(url)
@@ -77,7 +78,7 @@ actual class AyahAudioPlayer(context: Context) {
     /**
      * Pauses the current playback.
      */
-    actual fun pause() {
+    actual override fun pause() {
         player.playWhenReady = false
         _audioState.value = AudioState.Paused
     }
@@ -85,7 +86,7 @@ actual class AyahAudioPlayer(context: Context) {
     /**
      * Resumes paused playback.
      */
-    actual fun resume() {
+    actual override fun resume() {
         player.playWhenReady = true
         _audioState.value = AudioState.Playing
     }
@@ -93,7 +94,7 @@ actual class AyahAudioPlayer(context: Context) {
     /**
      * Stops playback and resets position.
      */
-    actual fun stop() {
+    actual override fun stop() {
         player.stop()
         _audioState.value = AudioState.Idle
     }
@@ -101,7 +102,7 @@ actual class AyahAudioPlayer(context: Context) {
     /**
      * Releases all native ExoPlayer resources.
      */
-    actual fun release() {
+    actual override fun release() {
         player.stop()
         player.release()
         _audioState.value = AudioState.Idle

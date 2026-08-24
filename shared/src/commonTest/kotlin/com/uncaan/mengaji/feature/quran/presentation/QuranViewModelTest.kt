@@ -1,5 +1,7 @@
 package com.uncaan.mengaji.feature.quran.presentation
 
+import com.uncaan.mengaji.core.audio.AudioPlayer
+import com.uncaan.mengaji.core.audio.AudioState
 import com.uncaan.mengaji.core.domain.model.AppResult
 import com.uncaan.mengaji.feature.quran.domain.model.Ayah
 import com.uncaan.mengaji.feature.quran.domain.model.QuranEditionPresets
@@ -7,6 +9,9 @@ import com.uncaan.mengaji.feature.quran.domain.repository.QuranRepository
 import com.uncaan.mengaji.feature.quran.domain.usecase.GetAyahUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -50,11 +55,46 @@ private class FakeQuranRepository : QuranRepository {
     }
 }
 
+private class FakeAudioPlayer : AudioPlayer {
+    private val _audioState = MutableStateFlow<AudioState>(AudioState.Idle)
+    override val audioState: StateFlow<AudioState> = _audioState.asStateFlow()
+
+    var lastPlayedUrl: String? = null
+    var pauseCount: Int = 0
+    var resumeCount: Int = 0
+    var stopCount: Int = 0
+
+    override fun play(url: String) {
+        lastPlayedUrl = url
+        _audioState.value = AudioState.Playing
+    }
+
+    override fun pause() {
+        pauseCount++
+        _audioState.value = AudioState.Paused
+    }
+
+    override fun resume() {
+        resumeCount++
+        _audioState.value = AudioState.Playing
+    }
+
+    override fun stop() {
+        stopCount++
+        _audioState.value = AudioState.Idle
+    }
+
+    override fun release() {
+        stop()
+    }
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class QuranViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakeRepository: FakeQuranRepository
+    private lateinit var fakeAudioPlayer: FakeAudioPlayer
     private lateinit var getAyahUseCase: GetAyahUseCase
     private lateinit var viewModel: QuranViewModel
 
@@ -62,8 +102,9 @@ class QuranViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         fakeRepository = FakeQuranRepository()
+        fakeAudioPlayer = FakeAudioPlayer()
         getAyahUseCase = GetAyahUseCase(fakeRepository)
-        viewModel = QuranViewModel(getAyahUseCase)
+        viewModel = QuranViewModel(getAyahUseCase, fakeAudioPlayer)
     }
 
     @AfterTest
@@ -77,6 +118,7 @@ class QuranViewModelTest {
         assertEquals("", viewModel.searchQuery.value)
         assertEquals(QuranEditionPresets.DEFAULT_TRANSLATION, viewModel.selectedTranslation.value)
         assertEquals(QuranEditionPresets.DEFAULT_RECITATION, viewModel.selectedRecitation.value)
+        assertEquals(AudioState.Idle, viewModel.audioState.value)
     }
 
     @Test
@@ -189,5 +231,54 @@ class QuranViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state is QuranUiState.Success)
         assertEquals("ar.abdulbasitmurattal", state.selectedAudioEdition)
+    }
+
+    @Test
+    fun playAudio_action_triggersAudioPlayerPlay() {
+        val audioUrl = "https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3"
+        viewModel.onAction(QuranUiAction.PlayAudio(audioUrl))
+
+        assertEquals(audioUrl, fakeAudioPlayer.lastPlayedUrl)
+        assertEquals(AudioState.Playing, viewModel.audioState.value)
+    }
+
+    @Test
+    fun pauseAudio_action_triggersAudioPlayerPause() {
+        viewModel.onAction(QuranUiAction.PlayAudio("https://example.com/audio.mp3"))
+        viewModel.onAction(QuranUiAction.PauseAudio)
+
+        assertEquals(1, fakeAudioPlayer.pauseCount)
+        assertEquals(AudioState.Paused, viewModel.audioState.value)
+    }
+
+    @Test
+    fun resumeAudio_action_triggersAudioPlayerResume() {
+        viewModel.onAction(QuranUiAction.PlayAudio("https://example.com/audio.mp3"))
+        viewModel.onAction(QuranUiAction.PauseAudio)
+        viewModel.onAction(QuranUiAction.ResumeAudio)
+
+        assertEquals(1, fakeAudioPlayer.resumeCount)
+        assertEquals(AudioState.Playing, viewModel.audioState.value)
+    }
+
+    @Test
+    fun stopAudio_action_triggersAudioPlayerStop() {
+        viewModel.onAction(QuranUiAction.PlayAudio("https://example.com/audio.mp3"))
+        viewModel.onAction(QuranUiAction.StopAudio)
+
+        assertEquals(1, fakeAudioPlayer.stopCount)
+        assertEquals(AudioState.Idle, viewModel.audioState.value)
+    }
+
+    @Test
+    fun searchAyah_automaticallyStopsAudio() = runTest {
+        viewModel.onAction(QuranUiAction.PlayAudio("https://example.com/audio.mp3"))
+        assertEquals(AudioState.Playing, viewModel.audioState.value)
+
+        viewModel.searchAyah("1:1")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(fakeAudioPlayer.stopCount >= 1)
+        assertEquals(AudioState.Idle, viewModel.audioState.value)
     }
 }
