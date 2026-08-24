@@ -20,6 +20,17 @@ import com.uncaan.mengaji.feature.quran.presentation.component.QuranLoadingSkele
 import com.uncaan.mengaji.feature.quran.presentation.component.QuranSearchBar
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Stateful root screen composable for the Al-Quran feature.
+ *
+ * Injects [QuranViewModel] via Koin and collects UI state and query flows
+ * using [collectAsStateWithLifecycle], delegating rendering to [AlQuranContent].
+ *
+ * @param modifier The layout modifier for the root container.
+ * @param viewModel The ViewModel instance providing UI state and action handling.
+ * @see AlQuranContent
+ * @see QuranViewModel
+ */
 @Composable
 fun AlQuranScreen(
     modifier: Modifier = Modifier,
@@ -40,6 +51,21 @@ fun AlQuranScreen(
     )
 }
 
+/**
+ * Stateless content composable for the Al-Quran screen.
+ *
+ * Renders the search bar, edition selectors, and dynamic state content
+ * ([QuranEmptyState], [QuranLoadingSkeleton], [AyahCard], or [QuranErrorState]).
+ *
+ * @param uiState Current immutable UI state.
+ * @param searchQuery Current search query text.
+ * @param selectedTranslation Currently selected translation edition identifier.
+ * @param selectedRecitation Currently selected audio recitation edition identifier.
+ * @param onAction Action callback dispatched to the ViewModel.
+ * @param modifier The layout modifier for the scrollable container.
+ * @see QuranUiState
+ * @see QuranUiAction
+ */
 @Composable
 fun AlQuranContent(
     uiState: QuranUiState,

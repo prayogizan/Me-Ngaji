@@ -29,6 +29,20 @@ import androidx.compose.ui.unit.dp
 import com.uncaan.mengaji.feature.quran.domain.model.Ayah
 import com.uncaan.mengaji.theme.getQuranArabicTextStyle
 
+/**
+ * Elevated card component rendering full Ayah details.
+ *
+ * Displays the Surah header with metadata badge, Quranic Arabic text rendered in
+ * RTL direction with Amiri font typography, a decorative divider, and the translated
+ * verse text in LTR direction.
+ *
+ * @param ayah The domain [Ayah] model to display.
+ * @param translationEdition The active translation edition identifier.
+ * @param recitationEdition The active audio recitation edition identifier.
+ * @param modifier Layout modifier applied to the root card container.
+ * @see SurahMetadataHeader
+ * @see getQuranArabicTextStyle
+ */
 @Composable
 fun AyahCard(
     ayah: Ayah,

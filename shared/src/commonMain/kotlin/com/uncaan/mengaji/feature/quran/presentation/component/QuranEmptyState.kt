@@ -36,6 +36,15 @@ private val SUGGESTIONS = listOf(
     QuickAyahSuggestion("Al-Mulk 67:1", "67:1")
 )
 
+/**
+ * Empty state card displayed on initial screen launch prior to any search queries.
+ *
+ * Offers quick-suggestion chips for popular verses (e.g. Al-Fatihah, Ayat Al-Kursi, Al-Ikhlas)
+ * to facilitate one-tap verse discovery.
+ *
+ * @param onSelectSuggestion Callback triggered when a quick-suggestion chip is tapped.
+ * @param modifier Layout modifier applied to the root card container.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun QuranEmptyState(
