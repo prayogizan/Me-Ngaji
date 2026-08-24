@@ -10,6 +10,19 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
 import kotlinx.io.IOException
 
+/**
+ * Executes a suspending network request within a standardized error-handling envelope.
+ *
+ * Catches known network, timeout, client, and server exceptions, transforming them into
+ * human-readable [AppResult.Error] instances while ensuring [CancellationException] is
+ * always re-thrown to preserve Kotlin Coroutines structured concurrency.
+ *
+ * @param T The type of the expected success payload.
+ * @param apiCall Suspending lambda executing the network operation.
+ * @return [AppResult.Success] containing the response payload, or [AppResult.Error] with the mapped exception.
+ * @throws CancellationException If the enclosing coroutine scope is cancelled.
+ * @see AppResult
+ */
 suspend inline fun <T> safeApiCall(crossinline apiCall: suspend () -> T): AppResult<T> {
     return try {
         AppResult.Success(apiCall())

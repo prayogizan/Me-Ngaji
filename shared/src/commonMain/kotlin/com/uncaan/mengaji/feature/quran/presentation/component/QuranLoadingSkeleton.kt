@@ -30,6 +30,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 
+/**
+ * Animated shimmer skeleton composable representing the [AyahCard] layout during network fetches.
+ *
+ * Implements an infinite translation gradient effect across placeholder boxes to provide
+ * smooth visual feedback while data loads.
+ *
+ * @param modifier Layout modifier applied to the root card container.
+ */
 @Composable
 fun QuranLoadingSkeleton(
     modifier: Modifier = Modifier

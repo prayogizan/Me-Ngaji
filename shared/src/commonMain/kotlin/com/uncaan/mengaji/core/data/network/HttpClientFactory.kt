@@ -13,7 +13,20 @@ import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+/**
+ * Factory for creating configured Ktor [HttpClient] instances across platforms.
+ *
+ * Configures standard engine plugins including JSON content negotiation with
+ * `kotlinx.serialization`, HTTP timeouts, request headers, and debug logging.
+ */
 object HttpClientFactory {
+
+    /**
+     * Creates a pre-configured [HttpClient] with default Al-Quran API settings.
+     *
+     * @param baseUrl The base endpoint URL for API requests. Defaults to `"https://api.alquran.cloud/v1/"`.
+     * @return The configured [HttpClient] instance ready for network calls.
+     */
     fun create(baseUrl: String = "https://api.alquran.cloud/v1/"): HttpClient {
         return HttpClient {
             expectSuccess = true

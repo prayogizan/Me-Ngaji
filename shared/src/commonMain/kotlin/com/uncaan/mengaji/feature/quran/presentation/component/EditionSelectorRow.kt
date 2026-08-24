@@ -18,6 +18,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.uncaan.mengaji.feature.quran.domain.model.QuranEditionPresets
 
+/**
+ * Horizontally scrollable row containing FilterChips for choosing translation and recitation editions.
+ *
+ * @param selectedTranslation The identifier of the currently active translation preset.
+ * @param selectedRecitation The identifier of the currently active recitation preset.
+ * @param onSelectTranslation Callback triggered when a translation chip is clicked.
+ * @param onSelectRecitation Callback triggered when a recitation chip is clicked.
+ * @param modifier Layout modifier applied to the root column container.
+ * @see QuranEditionPresets
+ */
 @Composable
 fun EditionSelectorRow(
     selectedTranslation: String,

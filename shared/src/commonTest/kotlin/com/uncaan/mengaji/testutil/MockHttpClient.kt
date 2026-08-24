@@ -11,6 +11,15 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+/**
+ * Creates a mock [HttpClient] engine responding with static JSON responses for unit tests.
+ *
+ * Configures [MockEngine] with ContentNegotiation and sets the base URL default request plugin.
+ *
+ * @param responseJson JSON response body string returned by the mock engine.
+ * @param statusCode HTTP status code returned in the simulated response (defaults to [HttpStatusCode.OK]).
+ * @return Mocked [HttpClient] instance.
+ */
 fun createMockHttpClient(
     responseJson: String,
     statusCode: HttpStatusCode = HttpStatusCode.OK
