@@ -7,6 +7,37 @@ import com.uncaan.mengaji.feature.quran.domain.model.Ayah
 import com.uncaan.mengaji.feature.quran.domain.model.Edition
 import com.uncaan.mengaji.feature.quran.domain.model.Surah
 
+fun List<AyahDto>.toDomain(): Ayah {
+    require(isNotEmpty()) { "Ayah editions list cannot be empty" }
+
+    val arabicDto = find {
+        val edition = it.edition
+        edition?.identifier == "quran-uthmani" || (edition != null && edition.language == "ar" && edition.format == "text")
+    } ?: first()
+    val translationDto = find {
+        val edition = it.edition
+        edition?.type == "translation" || (edition != null && edition.format == "text" && it != arabicDto)
+    }
+    val audioDto = find {
+        it.audio != null || it.edition?.format == "audio"
+    }
+
+    val base = arabicDto
+
+    return Ayah(
+        number = base.number,
+        text = arabicDto.text,
+        translation = translationDto?.text ?: "",
+        audioUrl = audioDto?.audio ?: base.audio,
+        surahNumber = base.surah.number,
+        surahName = base.surah.englishName,
+        surahArabicName = base.surah.name,
+        englishNameTranslation = base.surah.englishNameTranslation ?: "",
+        numberInSurah = base.numberInSurah,
+        juz = base.juz
+    )
+}
+
 fun AyahDto.toDomain(translationText: String = ""): Ayah {
     return Ayah(
         number = this.number,
@@ -15,6 +46,8 @@ fun AyahDto.toDomain(translationText: String = ""): Ayah {
         audioUrl = this.audio,
         surahNumber = this.surah.number,
         surahName = this.surah.englishName,
+        surahArabicName = this.surah.name,
+        englishNameTranslation = this.surah.englishNameTranslation ?: "",
         numberInSurah = this.numberInSurah,
         juz = this.juz
     )
