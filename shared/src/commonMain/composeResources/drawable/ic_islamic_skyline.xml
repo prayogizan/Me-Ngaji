@@ -1,0 +1,117 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="160dp"
+    android:viewportWidth="360"
+    android:viewportHeight="160">
+
+    <!-- Sky Background Glow / Subtle Stars -->
+    <path
+        android:fillColor="#0D5C3A"
+        android:fillAlpha="0.08"
+        android:pathData="M0,0h360v160h-360z"/>
+
+    <!-- Stars & Moon -->
+    <!-- Crescent Moon -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M180,18 C173.37,18 168,23.37 168,30 C168,36.63 173.37,42 180,42 C182.2,42 184.25,41.4 186,40.37 C181.75,38.86 178.69,34.8 178.69,30 C178.69,25.2 181.75,21.14 186,19.63 C184.25,18.6 182.2,18 180,18 Z"/>
+
+    <!-- Star 1 (Left) -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M70,30 l2,4.5 l4.5,2 l-4.5,2 l-2,4.5 l-2,-4.5 l-4.5,-2 l4.5,-2 z"/>
+
+    <!-- Star 2 (Right) -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M290,26 l1.5,3.5 l3.5,1.5 l-3.5,1.5 l-1.5,3.5 l-1.5,-3.5 l-3.5,-1.5 l3.5,-1.5 z"/>
+
+    <!-- Star 3 (Top Left) -->
+    <path
+        android:fillColor="#D4AF37"
+        android:fillAlpha="0.7"
+        android:pathData="M120,20 l1,2.5 l2.5,1 l-2.5,1 l-1,2.5 l-1,-2.5 l-2.5,-1 l2.5,-1 z"/>
+
+    <!-- Star 4 (Top Right) -->
+    <path
+        android:fillColor="#D4AF37"
+        android:fillAlpha="0.7"
+        android:pathData="M240,22 l1,2.5 l2.5,1 l-2.5,1 l-1,2.5 l-1,-2.5 l-2.5,-1 l2.5,-1 z"/>
+
+    <!-- Background Silhouette (Distant Mosque & Minarets) -->
+    <path
+        android:fillColor="#0D5C3A"
+        android:fillAlpha="0.25"
+        android:pathData="M0,160 L0,115 L25,115 L25,75 L28,75 L28,60 L30,55 L32,60 L32,75 L35,75 L35,115 L50,115 C50,95 65,80 85,80 C105,80 120,95 120,115 L240,115 C240,95 255,80 275,80 C295,80 310,95 310,115 L325,115 L325,75 L328,75 L328,60 L330,55 L332,60 L332,75 L335,75 L335,115 L360,115 L360,160 Z"/>
+
+    <!-- Foreground Mosque Architecture -->
+    <!-- Far Left Tower / Minaret -->
+    <path
+        android:fillColor="#0D5C3A"
+        android:pathData="M38,160 L38,90 L42,90 L42,65 L40,65 L40,62 L43,62 L43,50 L44,45 L45,50 L45,62 L48,62 L48,65 L46,65 L46,90 L50,90 L50,160 Z"/>
+
+    <!-- Left Dome -->
+    <path
+        android:fillColor="#0D5C3A"
+        android:pathData="M60,160 L60,110 C60,95 72,82 88,82 C104,82 116,95 116,110 L116,160 Z"/>
+    <!-- Left Dome Finial -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M87,74 L89,74 L89,82 L87,82 Z M88,71 C89.1,71 90,71.9 90,73 C90,74.1 89.1,75 88,75 C86.9,75 86,74.1 86,73 C86,71.9 86.9,71 88,71 Z"/>
+
+    <!-- Far Right Tower / Minaret -->
+    <path
+        android:fillColor="#0D5C3A"
+        android:pathData="M310,160 L310,90 L314,90 L314,65 L312,65 L312,62 L315,62 L315,50 L316,45 L317,50 L317,62 L320,62 L320,65 L318,65 L318,90 L322,90 L322,160 Z"/>
+
+    <!-- Right Dome -->
+    <path
+        android:fillColor="#0D5C3A"
+        android:pathData="M244,160 L244,110 C244,95 256,82 272,82 C288,82 300,95 300,110 L300,160 Z"/>
+    <!-- Right Dome Finial -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M271,74 L273,74 L273,82 L271,82 Z M272,71 C273.1,71 274,71.9 274,73 C274,74.1 273.1,75 272,75 C270.9,75 270,74.1 270,73 C270,71.9 270.9,71 272,71 Z"/>
+
+    <!-- Central Grand Mosque Structure -->
+    <!-- Main Center Dome -->
+    <path
+        android:fillColor="#0D5C3A"
+        android:pathData="M130,160 L130,105 C130,78 152,58 180,58 C208,58 230,78 230,105 L230,160 Z"/>
+
+    <!-- Central Dome Golden Finial & Crescent -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M179,48 L181,48 L181,58 L179,58 Z M180,44 C181.65,44 183,45.35 183,47 C183,48.65 181.65,50 180,50 C178.35,50 177,48.65 177,47 C177,45.35 178.35,44 180,44 Z"/>
+
+    <!-- Center Main Arch / Portal (Illuminated Gold Tone) -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M165,160 L165,128 C165,119.7 171.7,113 180,113 C188.3,113 195,119.7 195,128 L195,160 Z"/>
+
+    <!-- Inner Arch Dark Portal -->
+    <path
+        android:fillColor="#083D26"
+        android:pathData="M168,160 L168,130 C168,123.4 173.4,118 180,118 C186.6,118 192,123.4 192,130 L192,160 Z"/>
+
+    <!-- Left & Right Arches -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M140,160 L140,135 C140,129.5 144.5,125 150,125 C155.5,125 160,129.5 160,135 L160,160 Z"/>
+    <path
+        android:fillColor="#083D26"
+        android:pathData="M142,160 L142,136 C142,131.6 145.6,128 150,128 C154.4,128 158,131.6 158,136 L158,160 Z"/>
+
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M200,160 L200,135 C200,129.5 204.5,125 210,125 C215.5,125 220,129.5 220,135 L220,160 Z"/>
+    <path
+        android:fillColor="#083D26"
+        android:pathData="M202,160 L202,136 C202,131.6 205.6,128 210,128 C214.4,128 218,131.6 218,136 L218,160 Z"/>
+
+    <!-- Base Line Trim (Gold Border) -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M0,157 L360,157 L360,160 L0,160 Z"/>
+
+</vector>
