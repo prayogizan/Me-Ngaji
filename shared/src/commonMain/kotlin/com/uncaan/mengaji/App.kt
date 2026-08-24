@@ -22,7 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.uncaan.mengaji.feature.quran.presentation.AlQuranScreen
-import com.uncaan.mengaji.feature.shalat.ShalatScheduleScreen
+import com.uncaan.mengaji.feature.shalat.presentation.ShalatScheduleScreen
 import com.uncaan.mengaji.navigation.AlQuranRoute
 import com.uncaan.mengaji.navigation.MeNgajiBottomBar
 import com.uncaan.mengaji.navigation.NavigationTab
