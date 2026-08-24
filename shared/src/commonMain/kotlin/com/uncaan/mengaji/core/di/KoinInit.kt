@@ -1,6 +1,7 @@
 package com.uncaan.mengaji.core.di
 
 import com.uncaan.mengaji.feature.quran.di.quranModule
+import com.uncaan.mengaji.feature.shalat.di.shalatModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
@@ -14,6 +15,7 @@ import org.koin.dsl.KoinAppDeclaration
  * @see platformModule
  * @see coreModule
  * @see quranModule
+ * @see shalatModule
  */
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
     startKoin {
@@ -21,7 +23,8 @@ fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
         modules(
             platformModule,
             coreModule,
-            quranModule
+            quranModule,
+            shalatModule
         )
     }
 }
