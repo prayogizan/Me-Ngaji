@@ -8,6 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.uncaan.mengaji.core.di.initKoin
 
+/**
+ * Main Android entry-point activity for the MeNgaji application.
+ *
+ * Enables edge-to-edge system bars, initializes Koin dependency injection via [initKoin],
+ * and sets the Compose content hierarchy to [App].
+ *
+ * @see initKoin
+ * @see App
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -21,6 +30,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Android Studio Compose preview entry point for [App].
+ */
 @Preview
 @Composable
 fun AppAndroidPreview() {

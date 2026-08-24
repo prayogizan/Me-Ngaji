@@ -10,24 +10,44 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel managing the business logic and UI state orchestration for the Al-Quran feature.
+ *
+ * Implements Unidirectional Data Flow (UDF) by exposing immutable [StateFlow] streams
+ * and processing actions through [onAction].
+ *
+ * @property getAyahUseCase The use case for querying Ayah data.
+ * @see GetAyahUseCase
+ * @see QuranUiState
+ * @see QuranUiAction
+ */
 class QuranViewModel(
     private val getAyahUseCase: GetAyahUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<QuranUiState>(QuranUiState.Initial)
+    /** Observable UI state emitted to the presentation layer. */
     val uiState: StateFlow<QuranUiState> = _uiState.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
+    /** Observable search query input string. */
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     private val _selectedTranslation = MutableStateFlow(QuranEditionPresets.DEFAULT_TRANSLATION)
+    /** Observable active translation edition identifier. */
     val selectedTranslation: StateFlow<String> = _selectedTranslation.asStateFlow()
 
     private val _selectedRecitation = MutableStateFlow(QuranEditionPresets.DEFAULT_RECITATION)
+    /** Observable active audio recitation edition identifier. */
     val selectedRecitation: StateFlow<String> = _selectedRecitation.asStateFlow()
 
     private var lastSearchedReference: String = ""
 
+    /**
+     * Single entry-point for dispatching user actions to the ViewModel.
+     *
+     * @param action The [QuranUiAction] intent to process.
+     */
     fun onAction(action: QuranUiAction) {
         when (action) {
             is QuranUiAction.Search -> searchAyah(action.reference)
@@ -49,6 +69,11 @@ class QuranViewModel(
         }
     }
 
+    /**
+     * Executes the Ayah search operation for a given reference query.
+     *
+     * @param reference The Ayah reference (e.g. "2:255"). Blank inputs are ignored.
+     */
     fun searchAyah(reference: String) {
         val trimmed = reference.trim()
         if (trimmed.isBlank()) return
@@ -93,6 +118,9 @@ class QuranViewModel(
         }
     }
 
+    /**
+     * Retries fetching the last searched Ayah reference if one exists.
+     */
     fun retry() {
         if (lastSearchedReference.isNotBlank()) {
             searchAyah(lastSearchedReference)

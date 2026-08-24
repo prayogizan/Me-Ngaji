@@ -20,6 +20,13 @@ import mengaji.shared.generated.resources.Res
 import mengaji.shared.generated.resources.ic_schedule
 import org.jetbrains.compose.resources.painterResource
 
+/**
+ * Screen composable for the Shalat Schedule feature tab.
+ *
+ * Currently displays a placeholder screen indicating the upcoming feature status.
+ *
+ * @param modifier Layout modifier applied to the root container.
+ */
 @Composable
 fun ShalatScheduleScreen(
     modifier: Modifier = Modifier

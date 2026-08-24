@@ -4,6 +4,17 @@ import com.uncaan.mengaji.feature.quran.di.quranModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
+/**
+ * Initializes Koin dependency injection across target platforms.
+ *
+ * Configures the platform module, core module, and feature modules. Supports optional
+ * platform-specific app declarations (such as Android Context binding).
+ *
+ * @param appDeclaration Optional lambda for platform-specific Koin configurations.
+ * @see platformModule
+ * @see coreModule
+ * @see quranModule
+ */
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
     startKoin {
         appDeclaration()

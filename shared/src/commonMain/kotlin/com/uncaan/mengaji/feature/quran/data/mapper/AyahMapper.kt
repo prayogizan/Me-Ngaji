@@ -7,6 +7,17 @@ import com.uncaan.mengaji.feature.quran.domain.model.Ayah
 import com.uncaan.mengaji.feature.quran.domain.model.Edition
 import com.uncaan.mengaji.feature.quran.domain.model.Surah
 
+/**
+ * Maps a list of multi-edition [AyahDto] responses (Arabic text, translation, audio) to a single domain [Ayah] model.
+ *
+ * Extracts Arabic text from the Arabic edition DTO, translation text from the translation edition DTO,
+ * and audio recitation URL from the audio edition DTO.
+ *
+ * @receiver List of [AyahDto] returned from a multi-edition API endpoint.
+ * @return The unified domain [Ayah] model.
+ * @throws IllegalArgumentException If the editions list is empty.
+ * @see Ayah
+ */
 fun List<AyahDto>.toDomain(): Ayah {
     require(isNotEmpty()) { "Ayah editions list cannot be empty" }
 
@@ -38,6 +49,13 @@ fun List<AyahDto>.toDomain(): Ayah {
     )
 }
 
+/**
+ * Maps a single [AyahDto] to the domain [Ayah] model.
+ *
+ * @receiver The raw [AyahDto].
+ * @param translationText Optional translated string to populate the [Ayah.translation] field.
+ * @return The mapped domain [Ayah].
+ */
 fun AyahDto.toDomain(translationText: String = ""): Ayah {
     return Ayah(
         number = this.number,
@@ -53,6 +71,12 @@ fun AyahDto.toDomain(translationText: String = ""): Ayah {
     )
 }
 
+/**
+ * Maps a [SurahDto] from the data layer to the domain [Surah] entity.
+ *
+ * @receiver The raw [SurahDto].
+ * @return The mapped domain [Surah].
+ */
 fun SurahDto.toDomain(): Surah {
     return Surah(
         number = this.number,
@@ -64,6 +88,12 @@ fun SurahDto.toDomain(): Surah {
     )
 }
 
+/**
+ * Maps an [EditionDto] from the data layer to the domain [Edition] entity.
+ *
+ * @receiver The raw [EditionDto].
+ * @return The mapped domain [Edition].
+ */
 fun EditionDto.toDomain(): Edition {
     return Edition(
         identifier = this.identifier,

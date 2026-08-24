@@ -29,6 +29,18 @@ import com.uncaan.mengaji.navigation.NavigationTab
 import com.uncaan.mengaji.navigation.ShalatScheduleRoute
 import com.uncaan.mengaji.theme.MeNgajiTheme
 
+/**
+ * Root Composable entry point for the MeNgaji application.
+ *
+ * Configures the [MeNgajiTheme], sets up the central [rememberNavController], manages
+ * the active [NavigationTab] title in the [CenterAlignedTopAppBar], and hosts the
+ * application's [NavHost] container with cross-fade transitions between [ShalatScheduleRoute]
+ * and [AlQuranRoute].
+ *
+ * @see MeNgajiTheme
+ * @see MeNgajiBottomBar
+ * @see NavigationTab
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
