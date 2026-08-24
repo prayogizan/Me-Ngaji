@@ -21,6 +21,17 @@ import mengaji.shared.generated.resources.ic_close
 import mengaji.shared.generated.resources.ic_search
 import org.jetbrains.compose.resources.painterResource
 
+/**
+ * Styled text input field for submitting Ayah search queries.
+ *
+ * Supports keyboard IME search actions, leading search icon button, and trailing clear button.
+ *
+ * @param query Current text query in the input field.
+ * @param onQueryChange Callback triggered on text modification.
+ * @param onSearch Callback triggered when the search button or keyboard IME action is clicked.
+ * @param onClear Callback triggered when the clear trailing button is clicked.
+ * @param modifier Layout modifier applied to the text field.
+ */
 @Composable
 fun QuranSearchBar(
     query: String,

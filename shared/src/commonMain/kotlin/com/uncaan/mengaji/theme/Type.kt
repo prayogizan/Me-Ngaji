@@ -11,6 +11,11 @@ import mengaji.shared.generated.resources.amiri_bold
 import mengaji.shared.generated.resources.amiri_regular
 import org.jetbrains.compose.resources.Font
 
+/**
+ * Resolves and constructs the [FontFamily] for the Amiri Arabic and Latin font resource.
+ *
+ * @return The configured Amiri [FontFamily].
+ */
 @Composable
 fun getAmiriFontFamily(): FontFamily {
     return FontFamily(
@@ -19,6 +24,14 @@ fun getAmiriFontFamily(): FontFamily {
     )
 }
 
+/**
+ * Returns the customized Material 3 [Typography] configuration for MeNgaji.
+ *
+ * Uses the Amiri font family for headline and title styles, and default system fonts
+ * for body and label styles to maintain high readability.
+ *
+ * @return Configured Material 3 [Typography] instance.
+ */
 @Composable
 fun getAppTypography(): Typography {
     val amiriFamily = getAmiriFontFamily()
@@ -63,6 +76,14 @@ fun getAppTypography(): Typography {
     )
 }
 
+/**
+ * Returns the dedicated [TextStyle] tailored for rendering Quranic Arabic script.
+ *
+ * Configures Amiri regular font with relaxed line height (44sp) to ensure diacritics
+ * (Harakat / Tashkeel) do not collide.
+ *
+ * @return Quranic Arabic text style.
+ */
 @Composable
 fun getQuranArabicTextStyle(): TextStyle {
     return TextStyle(

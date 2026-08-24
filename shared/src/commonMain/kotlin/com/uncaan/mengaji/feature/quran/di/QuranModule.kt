@@ -12,6 +12,20 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
+/**
+ * Koin dependency injection module for the Quran feature.
+ *
+ * Binds:
+ * - [QuranApiService] to [QuranApiServiceImpl] as a singleton.
+ * - [QuranRepository] to [QuranRepositoryImpl] as a singleton.
+ * - [GetAyahUseCase] as a factory.
+ * - [QuranViewModel] as a lifecycle-aware ViewModel.
+ *
+ * @see QuranApiService
+ * @see QuranRepository
+ * @see GetAyahUseCase
+ * @see QuranViewModel
+ */
 val quranModule = module {
     // Data Sources & Services
     singleOf(::QuranApiServiceImpl) bind QuranApiService::class

@@ -33,6 +33,17 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = TextPrimaryDark
 )
 
+/**
+ * Root Material 3 theme wrapper for the MeNgaji application.
+ *
+ * Automatically adapts between [LightColorScheme] and [DarkColorScheme] based on the
+ * system dark theme state or explicit [darkTheme] override. Configures the typography
+ * with the Amiri font family.
+ *
+ * @param darkTheme Whether dark color scheme should be rendered. Defaults to system setting via [isSystemInDarkTheme].
+ * @param content The composable tree to be themed.
+ * @see getAppTypography
+ */
 @Composable
 fun MeNgajiTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
