@@ -2,6 +2,8 @@ package com.uncaan.mengaji.feature.quran.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.uncaan.mengaji.core.audio.AudioPlayer
+import com.uncaan.mengaji.core.audio.AudioState
 import com.uncaan.mengaji.core.domain.model.AppResult
 import com.uncaan.mengaji.feature.quran.domain.model.QuranEditionPresets
 import com.uncaan.mengaji.feature.quran.domain.usecase.GetAyahUseCase
@@ -11,18 +13,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel managing the business logic and UI state orchestration for the Al-Quran feature.
+ * ViewModel managing the business logic, UI state orchestration, and audio playback for the Al-Quran feature.
  *
  * Implements Unidirectional Data Flow (UDF) by exposing immutable [StateFlow] streams
  * and processing actions through [onAction].
  *
  * @property getAyahUseCase The use case for querying Ayah data.
+ * @property audioPlayer The cross-platform audio player engine for streaming recitation audio.
  * @see GetAyahUseCase
+ * @see AudioPlayer
+ * @see AudioState
  * @see QuranUiState
  * @see QuranUiAction
  */
 class QuranViewModel(
-    private val getAyahUseCase: GetAyahUseCase
+    private val getAyahUseCase: GetAyahUseCase,
+    private val audioPlayer: AudioPlayer
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<QuranUiState>(QuranUiState.Initial)
@@ -40,6 +46,9 @@ class QuranViewModel(
     private val _selectedRecitation = MutableStateFlow(QuranEditionPresets.DEFAULT_RECITATION)
     /** Observable active audio recitation edition identifier. */
     val selectedRecitation: StateFlow<String> = _selectedRecitation.asStateFlow()
+
+    /** Observable audio playback state emitted from the cross-platform audio engine. */
+    val audioState: StateFlow<AudioState> = audioPlayer.audioState
 
     private var lastSearchedReference: String = ""
 
@@ -65,6 +74,10 @@ class QuranViewModel(
                     searchAyah(lastSearchedReference)
                 }
             }
+            is QuranUiAction.PlayAudio -> audioPlayer.play(action.url)
+            QuranUiAction.PauseAudio -> audioPlayer.pause()
+            QuranUiAction.ResumeAudio -> audioPlayer.resume()
+            QuranUiAction.StopAudio -> audioPlayer.stop()
             is QuranUiAction.Retry -> retry()
         }
     }
@@ -72,12 +85,15 @@ class QuranViewModel(
     /**
      * Executes the Ayah search operation for a given reference query.
      *
+     * Automatically stops any currently playing audio before initiating the search.
+     *
      * @param reference The Ayah reference (e.g. "2:255"). Blank inputs are ignored.
      */
     fun searchAyah(reference: String) {
         val trimmed = reference.trim()
         if (trimmed.isBlank()) return
 
+        audioPlayer.stop()
         lastSearchedReference = trimmed
         _searchQuery.value = trimmed
 
@@ -125,5 +141,10 @@ class QuranViewModel(
         if (lastSearchedReference.isNotBlank()) {
             searchAyah(lastSearchedReference)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        audioPlayer.stop()
     }
 }

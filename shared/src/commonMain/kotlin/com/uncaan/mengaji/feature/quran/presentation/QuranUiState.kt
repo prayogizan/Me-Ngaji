@@ -77,6 +77,22 @@ sealed interface QuranUiAction {
      */
     data class SelectAudioEdition(val editionIdentifier: String) : QuranUiAction
 
+    /**
+     * Begins or replaces audio playback with the given audio stream URL.
+     *
+     * @property url The HTTPS URL of the audio file to stream.
+     */
+    data class PlayAudio(val url: String) : QuranUiAction
+
+    /** Pauses the active audio recitation. */
+    data object PauseAudio : QuranUiAction
+
+    /** Resumes the currently paused audio recitation. */
+    data object ResumeAudio : QuranUiAction
+
+    /** Stops audio playback and resets the player to idle state. */
+    data object StopAudio : QuranUiAction
+
     /** Re-executes the last searched Ayah query. */
     data object Retry : QuranUiAction
 }

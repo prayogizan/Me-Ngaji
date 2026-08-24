@@ -3,6 +3,38 @@ package com.uncaan.mengaji.core.audio
 import kotlinx.coroutines.flow.StateFlow
 
 /**
+ * Interface contract for Quran audio recitation playback engines.
+ *
+ * Exposes observable [audioState] and operations for playback lifecycle management.
+ *
+ * @see AudioState
+ * @see AyahAudioPlayer
+ */
+interface AudioPlayer {
+    /** Observable playback state emitted as a [StateFlow]. */
+    val audioState: StateFlow<AudioState>
+
+    /**
+     * Begins playback from the given audio URL.
+     *
+     * @param url The HTTPS URL of the audio file to stream.
+     */
+    fun play(url: String)
+
+    /** Pauses the current playback. */
+    fun pause()
+
+    /** Resumes paused playback. */
+    fun resume()
+
+    /** Stops playback and resets position to idle. */
+    fun stop()
+
+    /** Releases all native resources held by the player. */
+    fun release()
+}
+
+/**
  * Cross-platform audio player for Quran Ayah recitation.
  *
  * Provides a unified API for play, pause, resume, stop, and release operations.
@@ -15,11 +47,12 @@ import kotlinx.coroutines.flow.StateFlow
  * Callers must invoke [release] when the player is no longer needed to free
  * native resources and prevent memory leaks.
  *
+ * @see AudioPlayer
  * @see AudioState
  */
-expect class AyahAudioPlayer {
+expect class AyahAudioPlayer : AudioPlayer {
     /** Observable playback state emitted as a [StateFlow]. */
-    val audioState: StateFlow<AudioState>
+    override val audioState: StateFlow<AudioState>
 
     /**
      * Begins playback from the given audio URL.
@@ -29,16 +62,16 @@ expect class AyahAudioPlayer {
      *
      * @param url The HTTPS URL of the audio file to stream.
      */
-    fun play(url: String)
+    override fun play(url: String)
 
     /** Pauses the current playback. State transitions to [AudioState.Paused]. */
-    fun pause()
+    override fun pause()
 
     /** Resumes paused playback. State transitions to [AudioState.Playing]. */
-    fun resume()
+    override fun resume()
 
     /** Stops playback and resets position. State transitions to [AudioState.Idle]. */
-    fun stop()
+    override fun stop()
 
     /**
      * Releases all native resources held by the player.
@@ -46,5 +79,6 @@ expect class AyahAudioPlayer {
      * After calling this method, the player instance must not be reused.
      * State transitions to [AudioState.Idle].
      */
-    fun release()
+    override fun release()
 }
+
