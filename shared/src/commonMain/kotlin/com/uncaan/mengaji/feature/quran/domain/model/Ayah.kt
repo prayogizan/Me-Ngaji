@@ -7,6 +7,8 @@ data class Ayah(
     val audioUrl: String?,
     val surahNumber: Int,
     val surahName: String,
+    val surahArabicName: String = "",
+    val englishNameTranslation: String = "",
     val numberInSurah: Int,
     val juz: Int
 )
