@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.uncaan.mengaji.core.di.initKoin
+import org.koin.android.ext.koin.androidContext
 
 /**
  * Main Android entry-point activity for the MeNgaji application.
@@ -22,7 +23,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        initKoin()
+        initKoin {
+            androidContext(this@MainActivity.applicationContext)
+        }
 
         setContent {
             App()
