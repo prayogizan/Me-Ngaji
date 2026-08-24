@@ -23,6 +23,18 @@ import mengaji.shared.generated.resources.Res
 import mengaji.shared.generated.resources.ic_refresh
 import org.jetbrains.compose.resources.painterResource
 
+/**
+ * Error state card with customized messaging and a retry action button.
+ *
+ * Distinguishes between not-found errors (404/invalid format), network connectivity issues,
+ * and generic server errors to provide tailored guidance.
+ *
+ * @param message The raw error message string.
+ * @param isNotFoundError True if the error indicates verse not found (404).
+ * @param isNetworkError True if the error indicates network or socket timeout failure.
+ * @param onRetry Callback triggered when the retry button is clicked.
+ * @param modifier Layout modifier applied to the root card container.
+ */
 @Composable
 fun QuranErrorState(
     message: String,

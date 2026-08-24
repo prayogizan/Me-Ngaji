@@ -12,6 +12,16 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import org.jetbrains.compose.resources.painterResource
 
+/**
+ * Bottom navigation bar for MeNgaji.
+ *
+ * Iterates through [NavigationTab.entries], highlights the currently active route
+ * in the navigation backstack hierarchy, and triggers [onTabSelected] on click.
+ *
+ * @param currentDestination The currently active [NavDestination] in the NavHost.
+ * @param onTabSelected Callback invoked with the clicked [NavigationTab].
+ * @see NavigationTab
+ */
 @Composable
 fun MeNgajiBottomBar(
     currentDestination: NavDestination?,
