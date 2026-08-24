@@ -11,7 +11,11 @@ import kotlin.test.assertTrue
 class FakeQuranRepository(
     private val shouldReturnError: Boolean = false
 ) : QuranRepository {
-    override suspend fun getAyah(reference: String, edition: String): AppResult<Ayah> {
+    override suspend fun getAyah(
+        reference: String,
+        translationEdition: String,
+        recitationEdition: String
+    ): AppResult<Ayah> {
         if (shouldReturnError) return AppResult.Error(Exception("Network failure"))
         return AppResult.Success(
             Ayah(

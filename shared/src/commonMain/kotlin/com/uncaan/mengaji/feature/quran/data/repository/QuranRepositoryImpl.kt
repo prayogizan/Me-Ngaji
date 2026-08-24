@@ -17,10 +17,14 @@ class QuranRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : QuranRepository {
 
-    override suspend fun getAyah(reference: String, edition: String): AppResult<Ayah> {
+    override suspend fun getAyah(
+        reference: String,
+        translationEdition: String,
+        recitationEdition: String
+    ): AppResult<Ayah> {
         return withContext(ioDispatcher) {
             safeApiCall {
-                apiService.getAyah(reference, edition)
+                apiService.getAyah(reference, translationEdition, recitationEdition)
             }.map { response ->
                 response.data.toDomain()
             }
