@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 1120" width="100%" height="100%" style="background-color: #0B1120; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Arrow Markers -->
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38BDF8" />
+    </marker>
+    <marker id="arr-emerald" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#10B981" />
+    </marker>
+    <marker id="arr-gold" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#FBBF24" />
+    </marker>
+    <marker id="arr-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#A78BFA" />
+    </marker>
+    <marker id="arr-slate" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#94A3B8" />
+    </marker>
+  </defs>
+
+  <!-- TITLE HEADER -->
+  <text x="480" y="38" fill="#F8FAFC" font-size="22" font-weight="bold" text-anchor="middle" letter-spacing="1">MeNgaji Clean Architecture &amp; Layer Boundaries</text>
+  <text x="480" y="58" fill="#94A3B8" font-size="12" text-anchor="middle">Compose Multiplatform (Android &amp; iOS) · Unidirectional Data Flow · Dependency Inversion</text>
+
+  <!-- ========================================================================= -->
+  <!-- 1. PRESENTATION LAYER (BLUE / CYAN ACCENT) -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 80)">
+    <!-- Container -->
+    <rect x="0" y="0" width="880" height="200" rx="14" fill="#0F172A" stroke="#38BDF8" stroke-width="2" />
+    <rect x="0" y="0" width="880" height="36" rx="14" fill="#1E293B" />
+    <rect x="0" y="24" width="880" height="12" fill="#1E293B" />
+    <text x="20" y="24" fill="#38BDF8" font-size="14" font-weight="bold" letter-spacing="1">📱 PRESENTATION LAYER</text>
+    <text x="860" y="24" fill="#94A3B8" font-size="11" text-anchor="end">shared/src/commonMain (UI, MVVM &amp; Navigation)</text>
+
+    <!-- Sub-Block 1: UI Screens & Composables -->
+    <rect x="20" y="52" width="265" height="132" rx="10" fill="#1E293B" stroke="#475569" stroke-width="1.5" />
+    <text x="35" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🖥️ Compose UI Screens</text>
+    <text x="35" y="100" fill="#94A3B8" font-size="11">· <code>AlQuranScreen</code> (Stateful)</text>
+    <text x="35" y="118" fill="#94A3B8" font-size="11">· <code>ShalatScheduleScreen</code></text>
+    <text x="35" y="136" fill="#94A3B8" font-size="11">· <code>AyahCard</code> · <code>AyahAudioControls</code></text>
+    <text x="35" y="154" fill="#94A3B8" font-size="11">· <code>ShalatHeroBanner</code> · <code>Roadmap</code></text>
+    <text x="35" y="172" fill="#38BDF8" font-size="10"><i>Stateless UI &amp; Material 3 Theming</i></text>
+
+    <!-- Sub-Block 2: ViewModels & State Flow -->
+    <rect x="305" y="52" width="270" height="132" rx="10" fill="#1E293B" stroke="#38BDF8" stroke-width="2" />
+    <text x="320" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🧠 ViewModels &amp; UDF</text>
+    <text x="320" y="100" fill="#94A3B8" font-size="11">· <code>QuranViewModel</code></text>
+    <text x="320" y="118" fill="#94A3B8" font-size="11">· <code>ShalatViewModel</code></text>
+    <text x="320" y="136" fill="#38BDF8" font-size="11">· <code>StateFlow&lt;QuranUiState&gt;</code></text>
+    <text x="320" y="154" fill="#38BDF8" font-size="11">· <code>onAction(QuranUiAction)</code></text>
+    <text x="320" y="172" fill="#94A3B8" font-size="10"><i>koin-compose-viewmodel</i></text>
+
+    <!-- Sub-Block 3: Navigation Compose -->
+    <rect x="595" y="52" width="265" height="132" rx="10" fill="#1E293B" stroke="#475569" stroke-width="1.5" />
+    <text x="610" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🧭 Navigation &amp; Routing</text>
+    <text x="610" y="100" fill="#94A3B8" font-size="11">· <code>AppNavHost</code> (Navigation 2.9.2)</text>
+    <text x="610" y="118" fill="#94A3B8" font-size="11">· <code>MeNgajiBottomBar</code></text>
+    <text x="610" y="136" fill="#94A3B8" font-size="11">· <code>NavigationTab.kt</code></text>
+    <text x="610" y="154" fill="#38BDF8" font-size="11">· <code>@Serializable</code> Route Contracts</text>
+    <text x="610" y="172" fill="#94A3B8" font-size="10"><i>Type-safe screen transitions</i></text>
+  </g>
+
+  <!-- DEPENDENCY ARROW: Presentation -> Domain -->
+  <path d="M 480 280 L 480 340" stroke="#38BDF8" stroke-width="3" marker-end="url(#arr-blue)" />
+  <rect x="360" y="298" width="240" height="24" rx="4" fill="#0B1120" stroke="#38BDF8" stroke-width="1" />
+  <text x="480" y="314" fill="#38BDF8" font-size="11" font-weight="bold" text-anchor="middle">DEPENDS ON (Inward Invocation)</text>
+
+  <!-- ========================================================================= -->
+  <!-- 2. DOMAIN LAYER (EMERALD GREEN ACCENT - CORE CENTER) -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 345)">
+    <!-- Container -->
+    <rect x="0" y="0" width="880" height="210" rx="14" fill="#064E3B" fill-opacity="0.25" stroke="#10B981" stroke-width="3" />
+    <rect x="0" y="0" width="880" height="36" rx="14" fill="#0D5C3A" />
+    <rect x="0" y="24" width="880" height="12" fill="#0D5C3A" />
+    <text x="20" y="24" fill="#A7F3D0" font-size="14" font-weight="bold" letter-spacing="1">🌿 DOMAIN LAYER (Business Logic Core - Zero Framework Dependencies)</text>
+    <text x="860" y="24" fill="#D1FAE5" font-size="11" text-anchor="end">Pure Kotlin · Platform-Agnostic</text>
+
+    <!-- Sub-Block 1: Use Cases -->
+    <rect x="20" y="52" width="265" height="142" rx="10" fill="#064E3B" fill-opacity="0.6" stroke="#10B981" stroke-width="2" />
+    <text x="35" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">⚡ Use Cases / Interactors</text>
+    <text x="35" y="102" fill="#D1FAE5" font-size="12">· <code>GetAyahUseCase</code></text>
+    <text x="35" y="122" fill="#D1FAE5" font-size="12">· <code>SearchAyahUseCase</code></text>
+    <text x="35" y="146" fill="#94A3B8" font-size="11"><i>Single-Responsibility Interactors</i></text>
+    <text x="35" y="164" fill="#A7F3D0" font-size="10">Validates query &amp; coordinates data</text>
+    <text x="35" y="180" fill="#A7F3D0" font-size="10">Returns <code>AppResult&lt;T, DataError&gt;</code></text>
+
+    <!-- Sub-Block 2: Domain Entities -->
+    <rect x="305" y="52" width="270" height="142" rx="10" fill="#064E3B" fill-opacity="0.6" stroke="#10B981" stroke-width="2" />
+    <text x="320" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">📦 Domain Entities &amp; Models</text>
+    <text x="320" y="102" fill="#D1FAE5" font-size="11">· <code>Ayah</code> (number, text, translation)</text>
+    <text x="320" y="120" fill="#D1FAE5" font-size="11">· <code>Surah</code> (number, name, englishName)</text>
+    <text x="320" y="138" fill="#D1FAE5" font-size="11">· <code>Edition</code> (identifier, language)</text>
+    <text x="320" y="156" fill="#D1FAE5" font-size="11">· <code>AudioState</code> (Idle, Buffering, Playing)</text>
+    <text x="320" y="174" fill="#D1FAE5" font-size="11">· <code>ShalatRoadmapItem</code> · <code>AppResult</code></text>
+
+    <!-- Sub-Block 3: Repository Interfaces -->
+    <rect x="595" y="52" width="265" height="142" rx="10" fill="#064E3B" fill-opacity="0.6" stroke="#10B981" stroke-width="2" />
+    <text x="610" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">📜 Repository Contracts</text>
+    <text x="610" y="102" fill="#D1FAE5" font-size="12">· <code>interface QuranRepository</code></text>
+    <text x="610" y="122" fill="#D1FAE5" font-size="12">· <code>interface AudioPlayer</code></text>
+    <text x="610" y="146" fill="#94A3B8" font-size="11"><i>Dependency Inversion Boundary</i></text>
+    <text x="610" y="164" fill="#A7F3D0" font-size="10">Decouples business logic from</text>
+    <text x="610" y="180" fill="#A7F3D0" font-size="10">concrete network &amp; native drivers</text>
+  </g>
+
+  <!-- DEPENDENCY ARROW: Data -> Domain (Implements Contracts) -->
+  <path d="M 480 620 L 480 560" stroke="#FBBF24" stroke-width="3" marker-end="url(#arr-gold)" />
+  <rect x="350" y="578" width="260" height="24" rx="4" fill="#0B1120" stroke="#FBBF24" stroke-width="1" />
+  <text x="480" y="594" fill="#FBBF24" font-size="11" font-weight="bold" text-anchor="middle">IMPLEMENTS CONTRACTS (Inversion)</text>
+
+  <!-- ========================================================================= -->
+  <!-- 3. DATA & NETWORKING LAYER (GOLD / AMBER ACCENT) -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 625)">
+    <!-- Container -->
+    <rect x="0" y="0" width="880" height="200" rx="14" fill="#0F172A" stroke="#FBBF24" stroke-width="2" />
+    <rect x="0" y="0" width="880" height="36" rx="14" fill="#78350F" />
+    <rect x="0" y="24" width="880" height="12" fill="#78350F" />
+    <text x="20" y="24" fill="#FDE68A" font-size="14" font-weight="bold" letter-spacing="1">💾 DATA &amp; NETWORKING LAYER</text>
+    <text x="860" y="24" fill="#FEF3C7" font-size="11" text-anchor="end">shared/src/commonMain (Data Sources, DTOs &amp; Mappers)</text>
+
+    <!-- Sub-Block 1: Repository Implementation -->
+    <rect x="20" y="52" width="265" height="132" rx="10" fill="#1E293B" stroke="#FBBF24" stroke-width="1.5" />
+    <text x="35" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🏢 Repository Implementation</text>
+    <text x="35" y="100" fill="#FEF3C7" font-size="12">· <code>QuranRepositoryImpl</code></text>
+    <text x="35" y="122" fill="#94A3B8" font-size="11">Implements <code>QuranRepository</code></text>
+    <text x="35" y="140" fill="#94A3B8" font-size="11">Invokes <code>QuranApiService</code></text>
+    <text x="35" y="158" fill="#94A3B8" font-size="11">Transforms DTOs via Mappers</text>
+    <text x="35" y="174" fill="#FDE68A" font-size="10">Guarantees safe domain results</text>
+
+    <!-- Sub-Block 2: Remote Data Source & Network -->
+    <rect x="305" y="52" width="270" height="132" rx="10" fill="#1E293B" stroke="#475569" stroke-width="1.5" />
+    <text x="320" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🌐 Ktor Client &amp; Safe API</text>
+    <text x="320" y="100" fill="#FEF3C7" font-size="11">· <code>QuranApiService</code> (interface)</text>
+    <text x="320" y="118" fill="#FEF3C7" font-size="11">· <code>QuranApiServiceImpl</code> (Ktor 3.1.1)</text>
+    <text x="320" y="136" fill="#FDE68A" font-size="11">· <code>safeApiCall { }</code> Error Boundary</text>
+    <text x="320" y="154" fill="#94A3B8" font-size="11">· <code>HttpClientFactory</code> (CIO / Darwin)</text>
+    <text x="320" y="172" fill="#94A3B8" font-size="10"><i>Dynamic logging (DEV / PROD)</i></text>
+
+    <!-- Sub-Block 3: DTOs & Mappers -->
+    <rect x="595" y="52" width="265" height="132" rx="10" fill="#1E293B" stroke="#475569" stroke-width="1.5" />
+    <text x="610" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🔄 DTOs, Mappers &amp; Cache</text>
+    <text x="610" y="100" fill="#FEF3C7" font-size="11">· <code>AyahResponseDto</code> (Serializable)</text>
+    <text x="610" y="118" fill="#FEF3C7" font-size="11">· <code>AyahDto</code> · <code>EditionDto</code></text>
+    <text x="610" y="136" fill="#FDE68A" font-size="11">· <code>AyahDto.toDomain(): Ayah</code></text>
+    <text x="610" y="154" fill="#94A3B8" font-size="11">· Local Preferences &amp; Cache</text>
+    <text x="610" y="172" fill="#94A3B8" font-size="10"><i>Source Of Truth isolation</i></text>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 4. PLATFORM INFRASTRUCTURE & DEPENDENCY INJECTION (PURPLE ACCENT) -->
+  <!-- ========================================================================= -->
+  <g transform="translate(40, 850)">
+    <!-- Container -->
+    <rect x="0" y="0" width="880" height="210" rx="14" fill="#0F172A" stroke="#A78BFA" stroke-width="2" />
+    <rect x="0" y="0" width="880" height="36" rx="14" fill="#4C1D95" />
+    <rect x="0" y="24" width="880" height="12" fill="#4C1D95" />
+    <text x="20" y="24" fill="#EDE9FE" font-size="14" font-weight="bold" letter-spacing="1">⚙️ PLATFORM ABSTRACTION &amp; INFRASTRUCTURE (expect / actual &amp; Koin DI)</text>
+    <text x="860" y="24" fill="#DDD6FE" font-size="11" text-anchor="end">androidMain · iosMain · Koin Graph</text>
+
+    <!-- Sub-Block 1: Android Native Engine -->
+    <rect x="20" y="52" width="265" height="142" rx="10" fill="#1E293B" stroke="#A78BFA" stroke-width="1.5" />
+    <text x="35" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🤖 Android Native Engine</text>
+    <text x="35" y="100" fill="#DDD6FE" font-size="11">· <code>AyahAudioPlayer.android.kt</code></text>
+    <text x="35" y="118" fill="#A78BFA" font-size="11">  <i>AndroidX Media3 ExoPlayer 1.5.1</i></text>
+    <text x="35" y="136" fill="#94A3B8" font-size="11">· <code>PlatformModule.android.kt</code></text>
+    <text x="35" y="154" fill="#94A3B8" font-size="11">· <code>MainActivity.kt</code> (Host)</text>
+    <text x="35" y="174" fill="#EDE9FE" font-size="10"><code>singleOf(::AyahAudioPlayer)</code></text>
+
+    <!-- Sub-Block 2: iOS Native Engine -->
+    <rect x="305" y="52" width="270" height="142" rx="10" fill="#1E293B" stroke="#A78BFA" stroke-width="1.5" />
+    <text x="320" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🍎 iOS Native Engine</text>
+    <text x="320" y="100" fill="#DDD6FE" font-size="11">· <code>AyahAudioPlayer.ios.kt</code></text>
+    <text x="320" y="118" fill="#A78BFA" font-size="11">  <i>AVFoundation AVPlayer</i></text>
+    <text x="320" y="136" fill="#94A3B8" font-size="11">· <code>AVAudioSessionCategoryPlayback</code></text>
+    <text x="320" y="154" fill="#94A3B8" font-size="11">· <code>iOSApp.swift</code> (SwiftUI Host)</text>
+    <text x="320" y="174" fill="#EDE9FE" font-size="10"><code>single { AyahAudioPlayer() }</code></text>
+
+    <!-- Sub-Block 3: Koin Dependency Injection & Config -->
+    <rect x="595" y="52" width="265" height="142" rx="10" fill="#1E293B" stroke="#A78BFA" stroke-width="2" />
+    <text x="610" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🔌 Koin DI &amp; AppConfig</text>
+    <text x="610" y="100" fill="#DDD6FE" font-size="11">· <code>KoinInit.kt</code> (initKoin)</text>
+    <text x="610" y="118" fill="#DDD6FE" font-size="11">· <code>CoreModule</code> · <code>QuranModule</code></text>
+    <text x="610" y="136" fill="#DDD6FE" font-size="11">· <code>ShalatModule</code> · <code>PlatformModule</code></text>
+    <text x="610" y="154" fill="#A78BFA" font-size="11">· <code>AppConfig (DEV / PROD)</code></text>
+    <text x="610" y="174" fill="#94A3B8" font-size="10">Injects ViewModels, Repos &amp; Audio</text>
+  </g>
+
+  <!-- Side Connection: Platform Engine Implements AudioPlayer -->
+  <path d="M 870 850 C 930 750 930 450 870 380" fill="none" stroke="#A78BFA" stroke-width="2.5" stroke-dasharray="5 5" marker-end="url(#arr-purple)" />
+  <rect x="785" y="578" width="165" height="22" rx="4" fill="#0B1120" stroke="#A78BFA" stroke-width="1" />
+  <text x="867" y="593" fill="#A78BFA" font-size="10" font-weight="bold" text-anchor="middle">binds AudioPlayer</text>
+</svg>
