@@ -2,6 +2,7 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4.10-blue.svg?logo=kotlin)](https://kotlinlang.org)
 [![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.11.1-purple.svg?logo=jetpackcompose)](https://www.jetbrains.com/lp/compose-multiplatform/)
+[![Version](https://img.shields.io/badge/Version-0.0.1-blue.svg)](gradle/libs.versions.toml)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-green.svg)](https://github.com/prayogizan/Me-Ngaji)
 [![Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture%20%2B%20UDF-orange.svg)](#-architecture--design-patterns)
 [![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
@@ -148,14 +149,14 @@ cd Me-Ngaji
 
 ### Running on Android
 
-You can run directly from Android Studio using the `androidApp` run configuration, or via CLI:
+You can select your active build variant in Android Studio (`devDebug`, `devRelease`, `prodDebug`, `prodRelease`), or build via CLI:
 
 ```bash
-# Build and install debug APK on connected Android device/emulator
-./gradlew :androidApp:installDebug
+# Build & install Development Debug APK (com.uncaan.mengaji.dev)
+./gradlew :androidApp:installDevDebug
 
-# Or build debug APK bundle
-./gradlew :androidApp:assembleDebug
+# Build Production Release APK (com.uncaan.mengaji)
+./gradlew :androidApp:assembleProdRelease
 ```
 
 ### Running on iOS

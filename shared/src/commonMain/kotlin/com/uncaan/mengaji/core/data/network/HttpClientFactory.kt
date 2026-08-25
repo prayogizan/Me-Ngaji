@@ -22,12 +22,16 @@ import kotlinx.serialization.json.Json
 object HttpClientFactory {
 
     /**
-     * Creates a pre-configured [HttpClient] with default Al-Quran API settings.
+     * Creates a pre-configured [HttpClient] with Al-Quran API settings.
      *
      * @param baseUrl The base endpoint URL for API requests. Defaults to `"https://api.alquran.cloud/v1/"`.
+     * @param isDebug Whether debug logging and formatting should be enabled. Defaults to `false`.
      * @return The configured [HttpClient] instance ready for network calls.
      */
-    fun create(baseUrl: String = "https://api.alquran.cloud/v1/"): HttpClient {
+    fun create(
+        baseUrl: String = "https://api.alquran.cloud/v1/",
+        isDebug: Boolean = false
+    ): HttpClient {
         return HttpClient {
             expectSuccess = true
 
@@ -41,7 +45,7 @@ object HttpClientFactory {
                     Json {
                         ignoreUnknownKeys = true
                         isLenient = true
-                        prettyPrint = false
+                        prettyPrint = isDebug
                         encodeDefaults = true
                     }
                 )
@@ -54,7 +58,7 @@ object HttpClientFactory {
             }
 
             install(Logging) {
-                level = LogLevel.INFO
+                level = if (isDebug) LogLevel.ALL else LogLevel.INFO
                 logger = object : Logger {
                     override fun log(message: String) {
                         println("[KtorClient] $message")
