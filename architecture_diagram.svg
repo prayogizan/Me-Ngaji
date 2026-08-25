@@ -36,29 +36,29 @@
     <!-- Sub-Block 1: UI Screens & Composables -->
     <rect x="20" y="52" width="265" height="132" rx="10" fill="#1E293B" stroke="#475569" stroke-width="1.5" />
     <text x="35" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🖥️ Compose UI Screens</text>
-    <text x="35" y="100" fill="#94A3B8" font-size="11">· <code>AlQuranScreen</code> (Stateful)</text>
-    <text x="35" y="118" fill="#94A3B8" font-size="11">· <code>ShalatScheduleScreen</code></text>
-    <text x="35" y="136" fill="#94A3B8" font-size="11">· <code>AyahCard</code> · <code>AyahAudioControls</code></text>
-    <text x="35" y="154" fill="#94A3B8" font-size="11">· <code>ShalatHeroBanner</code> · <code>Roadmap</code></text>
-    <text x="35" y="172" fill="#38BDF8" font-size="10"><i>Stateless UI &amp; Material 3 Theming</i></text>
+    <text x="35" y="100" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">AlQuranScreen</tspan> (Stateful)</text>
+    <text x="35" y="118" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">ShalatScheduleScreen</tspan></text>
+    <text x="35" y="136" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">AyahCard</tspan> · <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">AyahAudioControls</tspan></text>
+    <text x="35" y="154" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">ShalatHeroBanner</tspan> · <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">Roadmap</tspan></text>
+    <text x="35" y="172" fill="#38BDF8" font-size="10" font-style="italic">Stateless UI &amp; Material 3 Theming</text>
 
     <!-- Sub-Block 2: ViewModels & State Flow -->
     <rect x="305" y="52" width="270" height="132" rx="10" fill="#1E293B" stroke="#38BDF8" stroke-width="2" />
     <text x="320" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🧠 ViewModels &amp; UDF</text>
-    <text x="320" y="100" fill="#94A3B8" font-size="11">· <code>QuranViewModel</code></text>
-    <text x="320" y="118" fill="#94A3B8" font-size="11">· <code>ShalatViewModel</code></text>
-    <text x="320" y="136" fill="#38BDF8" font-size="11">· <code>StateFlow&lt;QuranUiState&gt;</code></text>
-    <text x="320" y="154" fill="#38BDF8" font-size="11">· <code>onAction(QuranUiAction)</code></text>
-    <text x="320" y="172" fill="#94A3B8" font-size="10"><i>koin-compose-viewmodel</i></text>
+    <text x="320" y="100" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">QuranViewModel</tspan></text>
+    <text x="320" y="118" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">ShalatViewModel</tspan></text>
+    <text x="320" y="136" fill="#38BDF8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#38BDF8">StateFlow&lt;QuranUiState&gt;</tspan></text>
+    <text x="320" y="154" fill="#38BDF8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#38BDF8">onAction(QuranUiAction)</tspan></text>
+    <text x="320" y="172" fill="#94A3B8" font-size="10" font-style="italic">koin-compose-viewmodel</text>
 
     <!-- Sub-Block 3: Navigation Compose -->
     <rect x="595" y="52" width="265" height="132" rx="10" fill="#1E293B" stroke="#475569" stroke-width="1.5" />
     <text x="610" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🧭 Navigation &amp; Routing</text>
-    <text x="610" y="100" fill="#94A3B8" font-size="11">· <code>AppNavHost</code> (Navigation 2.9.2)</text>
-    <text x="610" y="118" fill="#94A3B8" font-size="11">· <code>MeNgajiBottomBar</code></text>
-    <text x="610" y="136" fill="#94A3B8" font-size="11">· <code>NavigationTab.kt</code></text>
-    <text x="610" y="154" fill="#38BDF8" font-size="11">· <code>@Serializable</code> Route Contracts</text>
-    <text x="610" y="172" fill="#94A3B8" font-size="10"><i>Type-safe screen transitions</i></text>
+    <text x="610" y="100" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">AppNavHost</tspan> (Navigation 2.9.2)</text>
+    <text x="610" y="118" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">MeNgajiBottomBar</tspan></text>
+    <text x="610" y="136" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#F1F5F9">NavigationTab.kt</tspan></text>
+    <text x="610" y="154" fill="#38BDF8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#38BDF8">@Serializable</tspan> Route Contracts</text>
+    <text x="610" y="172" fill="#94A3B8" font-size="10" font-style="italic">Type-safe screen transitions</text>
   </g>
 
   <!-- DEPENDENCY ARROW: Presentation -> Domain -->
@@ -80,27 +80,27 @@
     <!-- Sub-Block 1: Use Cases -->
     <rect x="20" y="52" width="265" height="142" rx="10" fill="#064E3B" fill-opacity="0.6" stroke="#10B981" stroke-width="2" />
     <text x="35" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">⚡ Use Cases / Interactors</text>
-    <text x="35" y="102" fill="#D1FAE5" font-size="12">· <code>GetAyahUseCase</code></text>
-    <text x="35" y="122" fill="#D1FAE5" font-size="12">· <code>SearchAyahUseCase</code></text>
-    <text x="35" y="146" fill="#94A3B8" font-size="11"><i>Single-Responsibility Interactors</i></text>
+    <text x="35" y="102" fill="#D1FAE5" font-size="12">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">GetAyahUseCase</tspan></text>
+    <text x="35" y="122" fill="#D1FAE5" font-size="12">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">SearchAyahUseCase</tspan></text>
+    <text x="35" y="146" fill="#94A3B8" font-size="11" font-style="italic">Single-Responsibility Interactors</text>
     <text x="35" y="164" fill="#A7F3D0" font-size="10">Validates query &amp; coordinates data</text>
-    <text x="35" y="180" fill="#A7F3D0" font-size="10">Returns <code>AppResult&lt;T, DataError&gt;</code></text>
+    <text x="35" y="180" fill="#A7F3D0" font-size="10">Returns <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">AppResult&lt;T, DataError&gt;</tspan></text>
 
     <!-- Sub-Block 2: Domain Entities -->
     <rect x="305" y="52" width="270" height="142" rx="10" fill="#064E3B" fill-opacity="0.6" stroke="#10B981" stroke-width="2" />
     <text x="320" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">📦 Domain Entities &amp; Models</text>
-    <text x="320" y="102" fill="#D1FAE5" font-size="11">· <code>Ayah</code> (number, text, translation)</text>
-    <text x="320" y="120" fill="#D1FAE5" font-size="11">· <code>Surah</code> (number, name, englishName)</text>
-    <text x="320" y="138" fill="#D1FAE5" font-size="11">· <code>Edition</code> (identifier, language)</text>
-    <text x="320" y="156" fill="#D1FAE5" font-size="11">· <code>AudioState</code> (Idle, Buffering, Playing)</text>
-    <text x="320" y="174" fill="#D1FAE5" font-size="11">· <code>ShalatRoadmapItem</code> · <code>AppResult</code></text>
+    <text x="320" y="102" fill="#D1FAE5" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">Ayah</tspan> (number, text, translation)</text>
+    <text x="320" y="120" fill="#D1FAE5" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">Surah</tspan> (number, name, englishName)</text>
+    <text x="320" y="138" fill="#D1FAE5" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">Edition</tspan> (identifier, language)</text>
+    <text x="320" y="156" fill="#D1FAE5" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">AudioState</tspan> (Idle, Buffering, Playing)</text>
+    <text x="320" y="174" fill="#D1FAE5" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">ShalatRoadmapItem</tspan> · <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">AppResult</tspan></text>
 
     <!-- Sub-Block 3: Repository Interfaces -->
     <rect x="595" y="52" width="265" height="142" rx="10" fill="#064E3B" fill-opacity="0.6" stroke="#10B981" stroke-width="2" />
     <text x="610" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">📜 Repository Contracts</text>
-    <text x="610" y="102" fill="#D1FAE5" font-size="12">· <code>interface QuranRepository</code></text>
-    <text x="610" y="122" fill="#D1FAE5" font-size="12">· <code>interface AudioPlayer</code></text>
-    <text x="610" y="146" fill="#94A3B8" font-size="11"><i>Dependency Inversion Boundary</i></text>
+    <text x="610" y="102" fill="#D1FAE5" font-size="12">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">interface QuranRepository</tspan></text>
+    <text x="610" y="122" fill="#D1FAE5" font-size="12">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#6EE7B7">interface AudioPlayer</tspan></text>
+    <text x="610" y="146" fill="#94A3B8" font-size="11" font-style="italic">Dependency Inversion Boundary</text>
     <text x="610" y="164" fill="#A7F3D0" font-size="10">Decouples business logic from</text>
     <text x="610" y="180" fill="#A7F3D0" font-size="10">concrete network &amp; native drivers</text>
   </g>
@@ -124,29 +124,29 @@
     <!-- Sub-Block 1: Repository Implementation -->
     <rect x="20" y="52" width="265" height="132" rx="10" fill="#1E293B" stroke="#FBBF24" stroke-width="1.5" />
     <text x="35" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🏢 Repository Implementation</text>
-    <text x="35" y="100" fill="#FEF3C7" font-size="12">· <code>QuranRepositoryImpl</code></text>
-    <text x="35" y="122" fill="#94A3B8" font-size="11">Implements <code>QuranRepository</code></text>
-    <text x="35" y="140" fill="#94A3B8" font-size="11">Invokes <code>QuranApiService</code></text>
+    <text x="35" y="100" fill="#FEF3C7" font-size="12">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FDE68A">QuranRepositoryImpl</tspan></text>
+    <text x="35" y="122" fill="#94A3B8" font-size="11">Implements <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FEF3C7">QuranRepository</tspan></text>
+    <text x="35" y="140" fill="#94A3B8" font-size="11">Invokes <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FEF3C7">QuranApiService</tspan></text>
     <text x="35" y="158" fill="#94A3B8" font-size="11">Transforms DTOs via Mappers</text>
     <text x="35" y="174" fill="#FDE68A" font-size="10">Guarantees safe domain results</text>
 
     <!-- Sub-Block 2: Remote Data Source & Network -->
     <rect x="305" y="52" width="270" height="132" rx="10" fill="#1E293B" stroke="#475569" stroke-width="1.5" />
     <text x="320" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🌐 Ktor Client &amp; Safe API</text>
-    <text x="320" y="100" fill="#FEF3C7" font-size="11">· <code>QuranApiService</code> (interface)</text>
-    <text x="320" y="118" fill="#FEF3C7" font-size="11">· <code>QuranApiServiceImpl</code> (Ktor 3.1.1)</text>
-    <text x="320" y="136" fill="#FDE68A" font-size="11">· <code>safeApiCall { }</code> Error Boundary</text>
-    <text x="320" y="154" fill="#94A3B8" font-size="11">· <code>HttpClientFactory</code> (CIO / Darwin)</text>
-    <text x="320" y="172" fill="#94A3B8" font-size="10"><i>Dynamic logging (DEV / PROD)</i></text>
+    <text x="320" y="100" fill="#FEF3C7" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FDE68A">QuranApiService</tspan> (interface)</text>
+    <text x="320" y="118" fill="#FEF3C7" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FDE68A">QuranApiServiceImpl</tspan> (Ktor 3.1.1)</text>
+    <text x="320" y="136" fill="#FDE68A" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FDE68A">safeApiCall { }</tspan> Error Boundary</text>
+    <text x="320" y="154" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FEF3C7">HttpClientFactory</tspan> (CIO / Darwin)</text>
+    <text x="320" y="172" fill="#94A3B8" font-size="10" font-style="italic">Dynamic logging (DEV / PROD)</text>
 
     <!-- Sub-Block 3: DTOs & Mappers -->
     <rect x="595" y="52" width="265" height="132" rx="10" fill="#1E293B" stroke="#475569" stroke-width="1.5" />
     <text x="610" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🔄 DTOs, Mappers &amp; Cache</text>
-    <text x="610" y="100" fill="#FEF3C7" font-size="11">· <code>AyahResponseDto</code> (Serializable)</text>
-    <text x="610" y="118" fill="#FEF3C7" font-size="11">· <code>AyahDto</code> · <code>EditionDto</code></text>
-    <text x="610" y="136" fill="#FDE68A" font-size="11">· <code>AyahDto.toDomain(): Ayah</code></text>
+    <text x="610" y="100" fill="#FEF3C7" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FDE68A">AyahResponseDto</tspan> (Serializable)</text>
+    <text x="610" y="118" fill="#FEF3C7" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FDE68A">AyahDto</tspan> · <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FDE68A">EditionDto</tspan></text>
+    <text x="610" y="136" fill="#FDE68A" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#FDE68A">AyahDto.toDomain(): Ayah</tspan></text>
     <text x="610" y="154" fill="#94A3B8" font-size="11">· Local Preferences &amp; Cache</text>
-    <text x="610" y="172" fill="#94A3B8" font-size="10"><i>Source Of Truth isolation</i></text>
+    <text x="610" y="172" fill="#94A3B8" font-size="10" font-style="italic">Source Of Truth isolation</text>
   </g>
 
   <!-- ========================================================================= -->
@@ -163,28 +163,28 @@
     <!-- Sub-Block 1: Android Native Engine -->
     <rect x="20" y="52" width="265" height="142" rx="10" fill="#1E293B" stroke="#A78BFA" stroke-width="1.5" />
     <text x="35" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🤖 Android Native Engine</text>
-    <text x="35" y="100" fill="#DDD6FE" font-size="11">· <code>AyahAudioPlayer.android.kt</code></text>
-    <text x="35" y="118" fill="#A78BFA" font-size="11">  <i>AndroidX Media3 ExoPlayer 1.5.1</i></text>
-    <text x="35" y="136" fill="#94A3B8" font-size="11">· <code>PlatformModule.android.kt</code></text>
-    <text x="35" y="154" fill="#94A3B8" font-size="11">· <code>MainActivity.kt</code> (Host)</text>
-    <text x="35" y="174" fill="#EDE9FE" font-size="10"><code>singleOf(::AyahAudioPlayer)</code></text>
+    <text x="35" y="100" fill="#DDD6FE" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">AyahAudioPlayer.android.kt</tspan></text>
+    <text x="35" y="118" fill="#A78BFA" font-size="11" font-style="italic">  AndroidX Media3 ExoPlayer 1.5.1</text>
+    <text x="35" y="136" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">PlatformModule.android.kt</tspan></text>
+    <text x="35" y="154" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">MainActivity.kt</tspan> (Host)</text>
+    <text x="35" y="174" fill="#EDE9FE" font-size="10"><tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#C4B5FD">singleOf(::AyahAudioPlayer)</tspan></text>
 
     <!-- Sub-Block 2: iOS Native Engine -->
     <rect x="305" y="52" width="270" height="142" rx="10" fill="#1E293B" stroke="#A78BFA" stroke-width="1.5" />
     <text x="320" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🍎 iOS Native Engine</text>
-    <text x="320" y="100" fill="#DDD6FE" font-size="11">· <code>AyahAudioPlayer.ios.kt</code></text>
-    <text x="320" y="118" fill="#A78BFA" font-size="11">  <i>AVFoundation AVPlayer</i></text>
-    <text x="320" y="136" fill="#94A3B8" font-size="11">· <code>AVAudioSessionCategoryPlayback</code></text>
-    <text x="320" y="154" fill="#94A3B8" font-size="11">· <code>iOSApp.swift</code> (SwiftUI Host)</text>
-    <text x="320" y="174" fill="#EDE9FE" font-size="10"><code>single { AyahAudioPlayer() }</code></text>
+    <text x="320" y="100" fill="#DDD6FE" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">AyahAudioPlayer.ios.kt</tspan></text>
+    <text x="320" y="118" fill="#A78BFA" font-size="11" font-style="italic">  AVFoundation AVPlayer</text>
+    <text x="320" y="136" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">AVAudioSessionCategoryPlayback</tspan></text>
+    <text x="320" y="154" fill="#94A3B8" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">iOSApp.swift</tspan> (SwiftUI Host)</text>
+    <text x="320" y="174" fill="#EDE9FE" font-size="10"><tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#C4B5FD">single { AyahAudioPlayer() }</tspan></text>
 
     <!-- Sub-Block 3: Koin Dependency Injection & Config -->
     <rect x="595" y="52" width="265" height="142" rx="10" fill="#1E293B" stroke="#A78BFA" stroke-width="2" />
     <text x="610" y="78" fill="#F8FAFC" font-size="14" font-weight="bold">🔌 Koin DI &amp; AppConfig</text>
-    <text x="610" y="100" fill="#DDD6FE" font-size="11">· <code>KoinInit.kt</code> (initKoin)</text>
-    <text x="610" y="118" fill="#DDD6FE" font-size="11">· <code>CoreModule</code> · <code>QuranModule</code></text>
-    <text x="610" y="136" fill="#DDD6FE" font-size="11">· <code>ShalatModule</code> · <code>PlatformModule</code></text>
-    <text x="610" y="154" fill="#A78BFA" font-size="11">· <code>AppConfig (DEV / PROD)</code></text>
+    <text x="610" y="100" fill="#DDD6FE" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">KoinInit.kt</tspan> (initKoin)</text>
+    <text x="610" y="118" fill="#DDD6FE" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">CoreModule</tspan> · <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">QuranModule</tspan></text>
+    <text x="610" y="136" fill="#DDD6FE" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">ShalatModule</tspan> · <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#DDD6FE">PlatformModule</tspan></text>
+    <text x="610" y="154" fill="#A78BFA" font-size="11">· <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-weight="600" fill="#C4B5FD">AppConfig</tspan> (DEV / PROD)</text>
     <text x="610" y="174" fill="#94A3B8" font-size="10">Injects ViewModels, Repos &amp; Audio</text>
   </g>
 
