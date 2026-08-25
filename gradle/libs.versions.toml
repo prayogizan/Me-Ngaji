@@ -19,6 +19,8 @@ ktor = "3.1.1"
 koin = "4.0.2"
 navigationCompose = "2.9.2"
 androidx-media3 = "1.5.1"
+app-versionName = "0.0.1"
+app-versionCode = "1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

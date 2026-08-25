@@ -114,3 +114,23 @@ shared/src/commonMain/kotlin/com/uncaan/mengaji/
 - **Interface Segregation (ISP):** Client-specific contracts; do not create monolithic repositories.
 - **Dependency Inversion (DIP):** Presentation and domain layers depend on abstractions (interfaces), not concrete network/data implementations.
 - **DRY (Don't Repeat Yourself):** Common UI components, error handling, network response wrappers, and Ktor client setups are centralized in `core/`.
+
+---
+
+## 5. Build Flavors & App Configuration
+
+MeNgaji implements a unified multiplatform flavor and environment configuration architecture:
+
+| Environment | Android Flavor / App ID | iOS Bundle ID | Version Name | Debug Logging |
+|---|---|---|---|---|
+| **Development** (`DEV`) | `dev` (`com.uncaan.mengaji.dev`) | `com.uncaan.mengaji.dev` | `0.0.1-dev` | Enabled (`LogLevel.ALL`) |
+| **Production** (`PROD`) | `prod` (`com.uncaan.mengaji`) | `com.uncaan.mengaji` | `0.0.1` | Info Only (`LogLevel.INFO`) |
+
+### 5.1 Architecture Flow
+1. **Host Entry Point:**
+   - **Android (`MainActivity`):** Reads `BuildConfig.FLAVOR`, `BuildConfig.VERSION_NAME`, and `BuildConfig.DEBUG` to construct `AppConfig`.
+   - **iOS (`MainViewController` / `iOSApp`):** Initializes `AppConfig` from platform build configurations.
+2. **Koin Propagation (`initKoin` / `coreModule`):**
+   - Injects singleton `AppConfig` into the DI graph.
+   - Supplies `baseUrl` and `isDebug` dynamically to `HttpClientFactory.create()`.
+
