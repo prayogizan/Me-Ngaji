@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
+
+    <!-- Rounded Squircle App Icon Container (Deep Emerald Gradient) -->
+    <path android:pathData="M24,4 C10,4 4,10 4,24 L4,104 C4,118 10,124 24,124 L104,124 C118,124 124,118 124,104 L124,24 C124,10 118,4 104,4 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="64"
+                android:centerY="48"
+                android:gradientRadius="80"
+                android:startX="64"
+                android:startY="4"
+                android:endX="64"
+                android:endY="124"
+                android:type="radial">
+                <item
+                    android:color="#FF1B8253"
+                    android:offset="0.0" />
+                <item
+                    android:color="#FF0D5C3A"
+                    android:offset="0.55" />
+                <item
+                    android:color="#FF083D26"
+                    android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Subtle Golden Border Rim -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M24,4 C10,4 4,10 4,24 L4,104 C4,118 10,124 24,124 L104,124 C118,124 124,118 124,104 L124,24 C124,10 118,4 104,4 Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#26D4AF37" />
+
+    <!-- Subtle Geometric Ambient Halo -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M64,24 A40,40 0 1 0 64,104 A40,40 0 1 0 64,24"
+        android:strokeWidth="1.2"
+        android:strokeColor="#18D4AF37" />
+
+    <!-- Minimalist Crescent Base (Islamic Cradle / Recitation Resonance Arc) in Warm Gold -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M34,62 C36,80 49,90 64,90 C79,90 92,80 94,62 C89,76 77,84 64,84 C51,84 39,76 34,62 Z" />
+
+    <!-- Left Open Quran Page (Crisp White) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M62,74 C50,70 41,60 38,49 C45,49 56,53 62,57 Z" />
+
+    <!-- Right Open Quran Page (Crisp White) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M66,74 C78,70 87,60 90,49 C83,49 72,53 66,57 Z" />
+
+    <!-- Left Recitation Soundwave Accent Arc (Warm Gold) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:pathData="M43,55 C49,56 56,60 61,65" />
+
+    <!-- Right Recitation Soundwave Accent Arc (Warm Gold) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:pathData="M85,55 C79,56 72,60 67,65" />
+
+    <!-- Center Quran Book Spine (Gold) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:pathData="M64,56 L64,77" />
+
+    <!-- Noor Guiding Star (Diamond Emblem at Zenith) -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M64,33 L66.6,39.5 L73.1,42.1 L66.6,44.7 L64,51.2 L61.4,44.7 L54.9,42.1 L61.4,39.5 Z" />
+
+    <!-- Center Core Glow -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M64,38.2 L65.5,42.1 L64,45.9 L62.5,42.1 Z" />
+</vector>
