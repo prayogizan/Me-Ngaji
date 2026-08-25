@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+
+    <!-- Minimalist Crescent Base in Warm Gold -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M14,35 C15,46 23,52 32,52 C41,52 49,46 50,35 C47,44 39,48 32,48 C25,48 17,44 14,35 Z" />
+
+    <!-- Left Open Quran Page (Primary Emerald / Dynamic Tint) -->
+    <path
+        android:fillColor="#0D5C3A"
+        android:pathData="M31,43 C23,41 18,34 16,27 C21,27 27,29 31,32 Z" />
+
+    <!-- Right Open Quran Page (Primary Emerald / Dynamic Tint) -->
+    <path
+        android:fillColor="#0D5C3A"
+        android:pathData="M33,43 C41,41 46,34 48,27 C43,27 37,29 33,32 Z" />
+
+    <!-- Left Flow Line (Warm Gold) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M19,30 C23,31 27,33 30,36" />
+
+    <!-- Right Flow Line (Warm Gold) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M45,30 C41,31 37,33 34,36" />
+
+    <!-- Center Quran Book Spine (Gold) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#D4AF37"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:pathData="M32,31 L32,45" />
+
+    <!-- Noor Guiding Star (Diamond Emblem at Zenith) -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M32,16 L33.6,20.2 L37.8,21.8 L33.6,23.4 L32,27.6 L30.4,23.4 L26.2,21.8 L30.4,20.2 Z" />
+</vector>
