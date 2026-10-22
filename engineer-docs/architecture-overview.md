@@ -76,10 +76,23 @@ shared/src/commonMain/kotlin/com/uncaan/mengaji/
 │   │   │   └── component/     # AyahCard, SearchBar, EditionSelector
 │   │   └── di/
 │   │       └── QuranModule.kt # Koin module for feature
-│   └── shalat/
-│       └── presentation/
-│           ├── ShalatScheduleScreen.kt
-│           └── component/
+│   ├── shalat/
+│   │   └── presentation/
+│   │       ├── ShalatScheduleScreen.kt
+│   │       └── component/
+│   └── widget/
+│       ├── data/
+│       │   ├── model/         # DailyAyahResponseDto, DailyAyahEditionDto
+│       │   ├── remote/        # DailyAyahApiService, DailyAyahApiServiceImpl
+│       │   ├── repository/    # DailyAyahRepositoryImpl
+│       │   ├── local/         # LocalAyahCache (expect/actual)
+│       │   └── mapper/        # DailyAyahMapper.kt (DTO -> Domain entity)
+│       ├── domain/
+│       │   ├── model/         # DailyAyah
+│       │   ├── repository/    # DailyAyahRepository (interface)
+│       │   └── usecase/       # GetDailyAyahUseCase
+│       └── di/
+│           └── WidgetModule.kt# Koin module for feature
 ├── navigation/                # Routes, bottom navigation bar, AppNavHost
 └── theme/                     # Colors, Typography, Shapes, Theme composable
 ```
