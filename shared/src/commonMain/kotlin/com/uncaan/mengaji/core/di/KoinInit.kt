@@ -3,6 +3,7 @@ package com.uncaan.mengaji.core.di
 import com.uncaan.mengaji.core.domain.model.AppConfig
 import com.uncaan.mengaji.feature.quran.di.quranModule
 import com.uncaan.mengaji.feature.shalat.di.shalatModule
+import com.uncaan.mengaji.feature.widget.di.widgetModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
@@ -19,6 +20,7 @@ import org.koin.dsl.KoinAppDeclaration
  * @see coreModule
  * @see quranModule
  * @see shalatModule
+ * @see widgetModule
  */
 fun initKoin(
     appConfig: AppConfig = AppConfig.prod(),
@@ -30,7 +32,8 @@ fun initKoin(
             platformModule,
             coreModule(appConfig),
             quranModule,
-            shalatModule
+            shalatModule,
+            widgetModule
         )
     }
 }

@@ -19,6 +19,7 @@ ktor = "3.1.1"
 koin = "4.0.2"
 navigationCompose = "2.9.2"
 androidx-media3 = "1.5.1"
+kotlinx-datetime = "0.7.1"
 app-versionName = "0.0.1"
 app-versionCode = "1"
 
@@ -46,6 +47,7 @@ compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-previ
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 # Ktor Core & Plugins
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
