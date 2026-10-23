@@ -1,0 +1,32 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="250dp"
+    android:height="120dp"
+    android:viewportWidth="250"
+    android:viewportHeight="120">
+    <!-- Card Background -->
+    <path
+        android:fillColor="#FFF8F0"
+        android:pathData="M 12 0 L 238 0 A 12 12 0 0 1 250 12 L 250 108 A 12 12 0 0 1 238 120 L 12 120 A 12 12 0 0 1 0 108 L 0 12 A 12 12 0 0 1 12 0 Z"/>
+    <!-- Header accent line -->
+    <path
+        android:fillColor="#00695C"
+        android:pathData="M 16 16 L 80 16 A 2 2 0 0 1 80 20 L 16 20 A 2 2 0 0 1 16 16 Z"/>
+    <!-- Mock Arabic lines -->
+    <path
+        android:fillColor="#3E2723"
+        android:pathData="M 30 36 L 234 36 A 3 3 0 0 1 234 42 L 30 42 A 3 3 0 0 1 30 36 Z"/>
+    <path
+        android:fillColor="#3E2723"
+        android:pathData="M 60 50 L 234 50 A 3 3 0 0 1 234 56 L 60 56 A 3 3 0 0 1 60 50 Z"/>
+    <!-- Mock translation line -->
+    <path
+        android:fillColor="#00695C"
+        android:pathData="M 16 76 L 220 76 A 2 2 0 0 1 220 80 L 16 80 A 2 2 0 0 1 16 76 Z"/>
+    <path
+        android:fillColor="#795548"
+        android:pathData="M 16 86 L 160 86 A 2 2 0 0 1 160 90 L 16 90 A 2 2 0 0 1 16 86 Z"/>
+    <!-- Badge / footer -->
+    <path
+        android:fillColor="#00695C"
+        android:pathData="M 16 102 L 90 102 A 2 2 0 0 1 90 106 L 16 106 A 2 2 0 0 1 16 102 Z"/>
+</vector>
