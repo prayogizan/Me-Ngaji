@@ -14,10 +14,9 @@ import org.koin.core.component.inject
  * Glance [ActionCallback] invoked when the user taps the refresh icon button on any Daily Ayah widget.
  *
  * Forces an update by:
- * 1. Invalidating the cached timestamp in [android.content.SharedPreferences] so [GetDailyAyahUseCase]
- *    treats the request as a cache miss and attempts a network fetch.
- * 2. Invoking [GetDailyAyahUseCase] to download the latest quote and update local cache.
- * 3. Requesting Glance to re-render all active widget instances via [DailyAyahWidgetProvider.updateAll].
+ * 1. Invoking [GetDailyAyahUseCase] with `forceRefresh = true` to bypass the cached date, fetch the latest quote,
+ *    and update local persistence.
+ * 2. Requesting Glance to re-render all active widget instances via [DailyAyahWidgetProvider.updateAll].
  *
  * Implements [KoinComponent] to resolve domain dependencies in background widget receiver threads.
  *
@@ -33,15 +32,9 @@ class RefreshAyahAction : ActionCallback, KoinComponent {
         parameters: ActionParameters
     ) {
         try {
-            // Force cache expiration by clearing the cached date key
-            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .remove(KEY_FETCHED_DATE)
-                .commit()
-
-            // Execute use case to hit remote repository and persist fresh verse
+            // Execute use case with forceRefresh to hit remote repository and persist fresh verse
             val getDailyAyahUseCase: GetDailyAyahUseCase by inject()
-            getDailyAyahUseCase()
+            getDailyAyahUseCase(forceRefresh = true)
 
             // Re-render all active widget instances
             DailyAyahWidgetProvider().updateAll(context)
@@ -49,10 +42,5 @@ class RefreshAyahAction : ActionCallback, KoinComponent {
             // Safe fallback: still attempt to refresh widget view with available state
             DailyAyahWidgetProvider().update(context, glanceId)
         }
-    }
-
-    private companion object {
-        private const val PREF_NAME = "daily_ayah_widget_cache"
-        private const val KEY_FETCHED_DATE = "key_fetched_date"
     }
 }
