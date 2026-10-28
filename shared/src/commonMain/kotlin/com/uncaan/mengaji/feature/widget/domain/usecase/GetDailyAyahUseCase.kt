@@ -35,27 +35,43 @@ class GetDailyAyahUseCase(
     /**
      * Executes the daily Ayah retrieval workflow.
      *
-     * @return [AppResult.Success] containing the current or cached [DailyAyah], or [AppResult.Error] on unrecoverable failure.
+     * When [forceRefresh] is `false` (default):
+     * 1. Checks [LocalAyahCache] for an Ayah cached on the current calendar date.
+     * 2. If valid cache exists for today, returns [AppResult.Success] immediately without hitting the network.
+     * 3. If cache is missing or from a previous day, invokes [DailyAyahRepository.getDailyAyah].
+     * 4. On successful network response, updates [LocalAyahCache] with the new Ayah and returns it.
+     * 5. On network failure, falls back to the most recent cached Ayah (regardless of date) if available,
+     *    or propagates [AppResult.Error] if cache is completely empty.
+     *
+     * When [forceRefresh] is `true`:
+     * 1. Bypasses the cache date validation check and directly invokes [DailyAyahRepository.getDailyAyah].
+     * 2. On successful network response, persists the new Ayah to [LocalAyahCache] and returns it.
+     * 3. On network failure, directly propagates [AppResult.Error] without falling back to stale cache,
+     *    enabling background workers or refresh actions to detect the failure and schedule retries.
+     *
+     * @param forceRefresh When `true`, forces a fresh network retrieval bypassing today's cache check.
+     *                     Defaults to `false`.
+     * @return [AppResult.Success] containing the current or cached [DailyAyah], or [AppResult.Error] on failure.
      */
-    suspend operator fun invoke(): AppResult<DailyAyah> {
+    suspend operator fun invoke(forceRefresh: Boolean = false): AppResult<DailyAyah> {
         val today = currentDateProvider()
         val cachedDate = cache.getCacheDate()
         val cachedAyah = cache.getCachedAyah()
 
-        // Cache hit: today's quote is already saved
-        if (cachedDate == today && cachedAyah != null) {
+        // Cache hit: today's quote is already saved (bypassed if forceRefresh is true)
+        if (!forceRefresh && cachedDate == today && cachedAyah != null) {
             return AppResult.Success(cachedAyah)
         }
 
-        // Cache miss or expired: fetch from network
+        // Cache miss, expired, or force refresh: fetch from network
         return when (val networkResult = repository.getDailyAyah()) {
             is AppResult.Success -> {
                 cache.cacheAyah(networkResult.data)
                 networkResult
             }
             is AppResult.Error -> {
-                // Fallback to any previously cached Ayah if available
-                if (cachedAyah != null) {
+                // Fallback to any previously cached Ayah only if NOT force refreshing
+                if (!forceRefresh && cachedAyah != null) {
                     AppResult.Success(cachedAyah)
                 } else {
                     networkResult

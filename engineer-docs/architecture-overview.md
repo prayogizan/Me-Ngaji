@@ -14,6 +14,7 @@ MeNgaji is an Islamic mobile application built with **Compose Multiplatform (CMP
 | **Serialization** | `kotlinx.serialization` | `1.8.0` | JSON parsing and DTO mapping |
 | **Concurrency** | Kotlin Coroutines & Flow | `1.10.1` | Reactive streams and async execution |
 | **Navigation** | Navigation Compose | `2.9.2` | Type-safe `@Serializable` route navigation |
+| **Background Work** | WorkManager | `2.10.0` | Periodic background refresh for Android widgets |
 
 ---
 
@@ -95,6 +96,19 @@ shared/src/commonMain/kotlin/com/uncaan/mengaji/
 │           └── WidgetModule.kt# Koin module for feature
 ├── navigation/                # Routes, bottom navigation bar, AppNavHost
 └── theme/                     # Colors, Typography, Shapes, Theme composable
+
+androidApp/src/main/kotlin/com/uncaan/mengaji/
+├── MeNgajiApplication.kt      # App entry point, Koin init, WorkManager scheduling
+├── MainActivity.kt            # Compose host activity
+└── widget/
+    ├── DailyAyahWidgetProvider.kt # Responsive Glance AppWidget provider
+    ├── DailyAyahWidgetReceiver.kt # BroadcastReceiver for widget lifecycle
+    ├── action/
+    │   └── RefreshAyahAction.kt   # Manual user refresh action callback
+    ├── worker/
+    │   ├── DailyAyahRefreshWorker.kt # 24h background periodic CoroutineWorker
+    │   └── DailyAyahWorkScheduler.kt # Idempotent WorkManager scheduler
+    └── ui/                        # Glance layout composables & theme
 ```
 
 ---
@@ -146,4 +160,17 @@ MeNgaji implements a unified multiplatform flavor and environment configuration 
 2. **Koin Propagation (`initKoin` / `coreModule`):**
    - Injects singleton `AppConfig` into the DI graph.
    - Supplies `baseUrl` and `isDebug` dynamically to `HttpClientFactory.create()`.
+
+---
+
+## 6. Background Processing & Widget Synchronization (WorkManager)
+
+MeNgaji leverages Android Jetpack **WorkManager** (`2.10.0`) for battery-conscious background task orchestration:
+
+### 6.1 Periodic Ayah Refresh Architecture
+- **Worker (`DailyAyahRefreshWorker`):** Subclasses `CoroutineWorker` and resolves domain dependencies via Koin (`inject<GetDailyAyahUseCase>()`).
+- **Forced Sync Contract:** Invokes `GetDailyAyahUseCase(forceRefresh = true)` which bypasses local calendar-day cache checks, queries the remote Quran API, persists the fresh verse into `LocalAyahCache`, and pushes layout updates to all active `DailyAyahWidgetProvider` instances via `GlanceAppWidgetManager`.
+- **Power & Doze Awareness:** Configured with `NetworkType.CONNECTED` without aggressive wake locks, allowing the Android OS to batch execution during battery maintenance windows.
+- **Backoff & Resilience:** Retries transient network failures using `BackoffPolicy.EXPONENTIAL` up to 3 times before gracefully terminating to preserve existing cached verses on the home screen.
+- **Idempotent Scheduling (`DailyAyahWorkScheduler`):** Utilizes `ExistingPeriodicWorkPolicy.KEEP` to safely register the 24-hour job on both application cold start (`MeNgajiApplication.onCreate`) and home screen widget placement (`DailyAyahWidgetReceiver.onEnabled`).
 

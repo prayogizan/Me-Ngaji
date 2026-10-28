@@ -4,6 +4,7 @@ import android.app.Application
 import com.uncaan.mengaji.core.di.initKoin
 import com.uncaan.mengaji.core.domain.model.AppConfig
 import com.uncaan.mengaji.core.domain.model.AppEnvironment
+import com.uncaan.mengaji.widget.worker.DailyAyahWorkScheduler
 import org.koin.android.ext.koin.androidContext
 
 /**
@@ -11,11 +12,15 @@ import org.koin.android.ext.koin.androidContext
  *
  * Initializes the global Koin dependency injection container during process startup.
  * Initializing Koin here guarantees that background components—such as Glance widget receivers,
- * action callbacks, and broadcast handlers—can safely resolve dependencies without requiring
- * [MainActivity] to be launched first.
+ * action callbacks, WorkManager workers, and broadcast handlers—can safely resolve dependencies
+ * without requiring [MainActivity] to be launched first.
+ *
+ * Also enqueues the 24-hour periodic background refresh via [DailyAyahWorkScheduler] to keep
+ * the Daily Ayah widget synchronized.
  *
  * @see initKoin
  * @see AppConfig
+ * @see DailyAyahWorkScheduler
  */
 class MeNgajiApplication : Application() {
 
@@ -37,5 +42,8 @@ class MeNgajiApplication : Application() {
         initKoin(appConfig = appConfig) {
             androidContext(this@MeNgajiApplication)
         }
+
+        // Schedule periodic background refresh for Daily Ayah widget
+        DailyAyahWorkScheduler.schedule(this)
     }
 }
