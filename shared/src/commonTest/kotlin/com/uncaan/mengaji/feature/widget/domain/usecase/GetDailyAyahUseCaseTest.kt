@@ -125,6 +125,45 @@ class GetDailyAyahUseCaseTest {
         assertEquals(1, fakeRepo.fetchCallsCount)
     }
 
+    @Test
+    fun invoke_forceRefreshTrue_bypassesTodayCacheAndCallsRepository() = runTest {
+        val newAyah = sampleAyahToday.copy(globalAyahNumber = 999, arabicText = "آية جديدة")
+        val fakeRepo = FakeDailyAyahRepository(AppResult.Success(newAyah))
+        val fakeCache = FakeLocalAyahCache(initialAyah = sampleAyahToday, initialDate = "2026-10-22")
+        val useCase = GetDailyAyahUseCase(
+            repository = fakeRepo,
+            cache = fakeCache,
+            currentDateProvider = { "2026-10-22" }
+        )
+
+        val result = useCase(forceRefresh = true)
+
+        assertTrue(result is AppResult.Success)
+        assertEquals(newAyah, result.data)
+        assertEquals(1, fakeRepo.fetchCallsCount)
+        assertEquals(newAyah, fakeCache.getCachedAyah())
+    }
+
+    @Test
+    fun invoke_forceRefreshTrue_networkFailure_returnsErrorWithoutFallback() = runTest {
+        val networkError = AppResult.Error(Exception("Network timeout"), "No internet connection")
+        val fakeRepo = FakeDailyAyahRepository(networkError)
+        val fakeCache = FakeLocalAyahCache(initialAyah = sampleAyahToday, initialDate = "2026-10-22")
+        val useCase = GetDailyAyahUseCase(
+            repository = fakeRepo,
+            cache = fakeCache,
+            currentDateProvider = { "2026-10-22" }
+        )
+
+        val result = useCase(forceRefresh = true)
+
+        assertTrue(result is AppResult.Error)
+        assertEquals("No internet connection", result.message)
+        assertEquals(1, fakeRepo.fetchCallsCount)
+        // Cache must remain untouched on failure
+        assertEquals(sampleAyahToday, fakeCache.getCachedAyah())
+    }
+
     private class FakeDailyAyahRepository(
         private val response: AppResult<DailyAyah>
     ) : DailyAyahRepository {
