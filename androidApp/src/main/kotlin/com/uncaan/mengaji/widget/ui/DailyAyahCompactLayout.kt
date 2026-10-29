@@ -7,7 +7,6 @@ import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
@@ -31,6 +30,7 @@ import com.uncaan.mengaji.MainActivity
 import com.uncaan.mengaji.R
 import com.uncaan.mengaji.feature.widget.domain.model.DailyAyah
 import com.uncaan.mengaji.widget.action.RefreshAyahAction
+import com.uncaan.mengaji.widget.action.createAyahDeepLinkAction
 import com.uncaan.mengaji.widget.ui.theme.DailyAyahWidgetColors
 
 /**
@@ -40,7 +40,8 @@ import com.uncaan.mengaji.widget.ui.theme.DailyAyahWidgetColors
  * - Top Row: Surah badge on the left, right-aligned Arabic snippet, and refresh button.
  * - Bottom Row: Concise Indonesian translation snippet.
  *
- * Tapping anywhere opens [MainActivity]. Refresh icon invokes [RefreshAyahAction].
+ * Tapping anywhere deep-links into [MainActivity] with Surah and Ayah parameters (CMP-504).
+ * Refresh icon invokes [RefreshAyahAction].
  *
  * @param ayah The current [DailyAyah] domain model to render.
  * @param modifier Glance layout modifier applied to the root container.
@@ -62,7 +63,7 @@ fun DailyAyahCompactLayout(
             .background(DailyAyahWidgetColors.background)
             .cornerRadius(16.dp)
             .padding(horizontal = 12.dp, vertical = 8.dp)
-            .clickable(actionStartActivity<MainActivity>())
+            .clickable(createAyahDeepLinkAction(ayah))
     ) {
         Column(
             modifier = GlanceModifier.fillMaxSize(),
