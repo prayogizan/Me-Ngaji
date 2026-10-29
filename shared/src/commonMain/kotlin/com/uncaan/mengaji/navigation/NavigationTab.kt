@@ -27,6 +27,6 @@ enum class NavigationTab(
     AL_QURAN(
         label = "Al-Quran",
         icon = Res.drawable.ic_quran,
-        route = AlQuranRoute
+        route = AlQuranRoute()
     )
 }
