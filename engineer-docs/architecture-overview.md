@@ -104,7 +104,8 @@ androidApp/src/main/kotlin/com/uncaan/mengaji/
     ├── DailyAyahWidgetProvider.kt # Responsive Glance AppWidget provider
     ├── DailyAyahWidgetReceiver.kt # BroadcastReceiver for widget lifecycle
     ├── action/
-    │   └── RefreshAyahAction.kt   # Manual user refresh action callback
+    │   ├── RefreshAyahAction.kt   # Manual user refresh action callback
+    │   └── AyahDeepLinkAction.kt  # Glance action builder for reader deep links
     ├── worker/
     │   ├── DailyAyahRefreshWorker.kt # 24h background periodic CoroutineWorker
     │   └── DailyAyahWorkScheduler.kt # Idempotent WorkManager scheduler
@@ -174,3 +175,8 @@ MeNgaji leverages Android Jetpack **WorkManager** (`2.10.0`) for battery-conscio
 - **Backoff & Resilience:** Retries transient network failures using `BackoffPolicy.EXPONENTIAL` up to 3 times before gracefully terminating to preserve existing cached verses on the home screen.
 - **Idempotent Scheduling (`DailyAyahWorkScheduler`):** Utilizes `ExistingPeriodicWorkPolicy.KEEP` to safely register the 24-hour job on both application cold start (`MeNgajiApplication.onCreate`) and home screen widget placement (`DailyAyahWidgetReceiver.onEnabled`).
 
+### 6.2 Widget Deep-Link Navigation Architecture (CMP-504)
+- **Widget Tap Action:** `DailyAyahWidgetProvider` layouts (Full, Compact, Small) bind container clicks to `createAyahDeepLinkAction(ayah)` producing `actionStartActivity<MainActivity>()` populated with typed `ActionParameters` (`surah_number`, `ayah_number`). Fallback layout retains parameterless launch.
+- **Host Activity Lifecycle (`MainActivity`):** Configured with `android:launchMode="singleTop"` to intercept widget clicks via both `onCreate()` (cold start) and `onNewIntent()` (warm start / app already running) without duplicate Activity instantiation.
+- **Type-Safe Compose Route:** Deep links map to `AlQuranRoute(surahNumber = Int?, ayahNumber = Int?)`. Bottom navigation bar matching leverages `currentDestination.hasRoute(AlQuranRoute::class)` to retain active tab selection state.
+- **Automated Reader Search:** `AlQuranScreen` observes initial deep-link parameters via `LaunchedEffect(initialSurahNumber, initialAyahNumber)` and triggers `QuranViewModel.searchAyah("$surah:$ayah")`.
