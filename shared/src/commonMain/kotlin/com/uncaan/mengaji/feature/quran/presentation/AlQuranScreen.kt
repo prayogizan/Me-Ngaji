@@ -34,8 +34,12 @@ import org.koin.compose.viewmodel.koinViewModel
  *
  * Injects [QuranViewModel] via Koin, collects UI state, search query, edition presets,
  * and [AudioState] flows using [collectAsStateWithLifecycle], manages playback auto-stop
- * lifecycle with [DisposableEffect], presents error snackbars, and delegates rendering to [AlQuranContent].
+ * lifecycle with [DisposableEffect], presents error snackbars, auto-triggers search when
+ * initialized with valid [initialSurahNumber] and [initialAyahNumber] parameters, and
+ * delegates rendering to [AlQuranContent].
  *
+ * @param initialSurahNumber Optional 1-indexed Surah number passed from deep-link navigation.
+ * @param initialAyahNumber Optional 1-indexed Ayah number passed from deep-link navigation.
  * @param modifier The layout modifier for the root container.
  * @param viewModel The ViewModel instance providing UI state and action handling.
  * @see AlQuranContent
@@ -44,6 +48,8 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Composable
 fun AlQuranScreen(
+    initialSurahNumber: Int? = null,
+    initialAyahNumber: Int? = null,
     modifier: Modifier = Modifier,
     viewModel: QuranViewModel = koinViewModel()
 ) {
@@ -54,6 +60,15 @@ fun AlQuranScreen(
     val audioState by viewModel.audioState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Auto-search if deep-link parameters are present and positive
+    LaunchedEffect(initialSurahNumber, initialAyahNumber) {
+        if (initialSurahNumber != null && initialAyahNumber != null &&
+            initialSurahNumber > 0 && initialAyahNumber > 0
+        ) {
+            viewModel.searchAyah("$initialSurahNumber:$initialAyahNumber")
+        }
+    }
 
     // Auto-stop audio playback when screen leaves composition (e.g. tab switch)
     DisposableEffect(Unit) {
@@ -177,4 +192,3 @@ fun AlQuranContent(
         }
     }
 }
-

@@ -11,7 +11,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -21,9 +25,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.uncaan.mengaji.feature.quran.presentation.AlQuranScreen
 import com.uncaan.mengaji.feature.shalat.presentation.ShalatScheduleScreen
 import com.uncaan.mengaji.navigation.AlQuranRoute
+import com.uncaan.mengaji.navigation.AyahDeepLink
 import com.uncaan.mengaji.navigation.MeNgajiBottomBar
 import com.uncaan.mengaji.navigation.NavigationTab
 import com.uncaan.mengaji.navigation.ShalatScheduleRoute
@@ -33,22 +39,63 @@ import com.uncaan.mengaji.theme.MeNgajiTheme
  * Root Composable entry point for the MeNgaji application.
  *
  * Configures the [MeNgajiTheme], sets up the central [rememberNavController], manages
- * the active [NavigationTab] title in the [CenterAlignedTopAppBar], and hosts the
- * application's [NavHost] container with cross-fade transitions between [ShalatScheduleRoute]
- * and [AlQuranRoute].
+ * the active [NavigationTab] title in the [CenterAlignedTopAppBar], processes incoming [deepLink]
+ * triggers, and hosts the application's [NavHost] container with cross-fade transitions between
+ * [ShalatScheduleRoute] and [AlQuranRoute].
  *
+ * @param deepLink Optional deep-link payload received from external sources (e.g., home screen Glance widget).
+ * @param onDeepLinkConsumed Callback invoked when the [deepLink] has been successfully processed by navigation.
  * @see MeNgajiTheme
  * @see MeNgajiBottomBar
  * @see NavigationTab
+ * @see AyahDeepLink
+ * @see AlQuranRoute
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun App() {
+fun App(
+    deepLink: AyahDeepLink? = null,
+    onDeepLinkConsumed: () -> Unit = {}
+) {
     MeNgajiTheme {
         val navController = rememberNavController()
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
+
+        val initialRoute = remember {
+            if (deepLink != null) {
+                AlQuranRoute(surahNumber = deepLink.surahNumber, ayahNumber = deepLink.ayahNumber)
+            } else {
+                AlQuranRoute()
+            }
+        }
+
+        var isInitialLaunchConsumed by remember { mutableStateOf(false) }
+
+        LaunchedEffect(deepLink) {
+            deepLink?.let { link ->
+                if (!isInitialLaunchConsumed && initialRoute.surahNumber == link.surahNumber && initialRoute.ayahNumber == link.ayahNumber) {
+                    isInitialLaunchConsumed = true
+                    onDeepLinkConsumed()
+                    return@LaunchedEffect
+                }
+                navController.navigate(
+                    AlQuranRoute(
+                        surahNumber = link.surahNumber,
+                        ayahNumber = link.ayahNumber
+                    )
+                ) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        inclusive = (currentDestination?.hasRoute<AlQuranRoute>() == true)
+                        saveState = false
+                    }
+                    launchSingleTop = true
+                    restoreState = false
+                }
+                onDeepLinkConsumed()
+            }
+        }
 
         val currentTab = NavigationTab.entries.find { tab ->
             currentDestination?.hierarchy?.any { it.hasRoute(tab.route::class) } == true
@@ -86,7 +133,7 @@ fun App() {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = AlQuranRoute,
+                startDestination = initialRoute,
                 modifier = Modifier.padding(innerPadding),
                 enterTransition = { fadeIn(animationSpec = tween(300)) },
                 exitTransition = { fadeOut(animationSpec = tween(300)) },
@@ -96,8 +143,12 @@ fun App() {
                 composable<ShalatScheduleRoute> {
                     ShalatScheduleScreen()
                 }
-                composable<AlQuranRoute> {
-                    AlQuranScreen()
+                composable<AlQuranRoute> { backStackEntry ->
+                    val route = backStackEntry.toRoute<AlQuranRoute>()
+                    AlQuranScreen(
+                        initialSurahNumber = route.surahNumber,
+                        initialAyahNumber = route.ayahNumber
+                    )
                 }
             }
         }
