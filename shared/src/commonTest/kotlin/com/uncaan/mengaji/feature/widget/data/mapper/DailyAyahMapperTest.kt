@@ -41,6 +41,31 @@ class DailyAyahMapperTest {
         juz = 22
     )
 
+    private val sampleEnglishEdition = DailyAyahEditionDto(
+        number = 3644,
+        text = "Whereas those who strive against Our messages...",
+        edition = DailyAyahEditionDetailDto(
+            identifier = "en.asad",
+            language = "en",
+            type = "translation"
+        ),
+        surah = sampleSurah,
+        numberInSurah = 38,
+        juz = 22
+    )
+
+    @Test
+    fun toDailyAyah_englishEdition_returnsMappedEnglishDomainEntity() {
+        val list = listOf(sampleArabicEdition, sampleEnglishEdition)
+        val today = "2026-10-30"
+
+        val domain = list.toDailyAyah(fetchedDate = today, expectedEdition = "en.asad")
+
+        assertEquals("Whereas those who strive against Our messages...", domain.translationText)
+        assertEquals("en.asad", domain.translationEdition)
+        assertEquals("Saba", domain.surahName)
+    }
+
     @Test
     fun toDailyAyah_validMultiEditionList_returnsMappedDomainEntity() {
         val list = listOf(sampleArabicEdition, sampleIndonesianEdition)

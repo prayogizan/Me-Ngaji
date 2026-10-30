@@ -38,15 +38,16 @@ class DailyAyahRepositoryImpl(
     /**
      * Retrieves a random daily Ayah from the API and maps it to a [DailyAyah] domain model.
      *
+     * @param edition Identifier of the translation edition (e.g., "id.indonesian", "en.asad").
      * @return [AppResult.Success] containing the mapped [DailyAyah], or [AppResult.Error] on failure.
      */
-    override suspend fun getDailyAyah(): AppResult<DailyAyah> {
+    override suspend fun getDailyAyah(edition: String): AppResult<DailyAyah> {
         return withContext(ioDispatcher) {
             safeApiCall {
-                apiService.getRandomDailyAyah()
+                apiService.getRandomDailyAyah(edition = edition)
             }.map { response ->
                 val today = currentDateProvider()
-                response.data.toDailyAyah(fetchedDate = today)
+                response.data.toDailyAyah(fetchedDate = today, expectedEdition = edition)
             }
         }
     }
