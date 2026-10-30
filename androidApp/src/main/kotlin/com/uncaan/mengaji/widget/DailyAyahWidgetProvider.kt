@@ -1,5 +1,6 @@
 package com.uncaan.mengaji.widget
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
@@ -7,15 +8,19 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
 import com.uncaan.mengaji.core.domain.model.AppResult
 import com.uncaan.mengaji.feature.widget.domain.model.DailyAyah
 import com.uncaan.mengaji.feature.widget.domain.usecase.GetDailyAyahUseCase
+import com.uncaan.mengaji.widget.config.DailyAyahWidgetConfigManager
 import com.uncaan.mengaji.widget.ui.DailyAyahCompactLayout
 import com.uncaan.mengaji.widget.ui.DailyAyahFallbackLayout
 import com.uncaan.mengaji.widget.ui.DailyAyahFullLayout
 import com.uncaan.mengaji.widget.ui.DailyAyahSmallLayout
+import com.uncaan.mengaji.widget.ui.theme.DailyAyahColorTokens
+import com.uncaan.mengaji.widget.ui.theme.DailyAyahWidgetColors
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -27,11 +32,13 @@ import org.koin.core.component.inject
  * - **Compact (4x1):** Minimum 260dp width x 60dp height — single-line horizontal preview.
  * - **Small (2x2):** Minimum 110dp width x 110dp height — compact square presentation.
  *
- * Fetches data via [GetDailyAyahUseCase] inside [provideGlance] using a cache-first strategy with network fallback.
+ * Fetches data via [GetDailyAyahUseCase] inside [provideGlance] using a cache-first strategy with network fallback,
+ * honoring per-instance configuration (translation edition and color theme) persisted by [DailyAyahWidgetConfigManager].
  *
  * @see GlanceAppWidget
  * @see SizeMode.Responsive
  * @see GetDailyAyahUseCase
+ * @see DailyAyahWidgetConfigManager
  */
 class DailyAyahWidgetProvider : GlanceAppWidget(), KoinComponent {
 
@@ -51,49 +58,63 @@ class DailyAyahWidgetProvider : GlanceAppWidget(), KoinComponent {
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val appWidgetId = try {
+            GlanceAppWidgetManager(context).getAppWidgetId(id)
+        } catch (_: Exception) {
+            AppWidgetManager.INVALID_APPWIDGET_ID
+        }
+
+        val config = DailyAyahWidgetConfigManager.loadConfig(context, appWidgetId)
+        val colors = DailyAyahWidgetColors.colorsForTheme(config.theme)
+
         val result: AppResult<DailyAyah> = try {
             val getDailyAyahUseCase: GetDailyAyahUseCase by inject()
-            getDailyAyahUseCase()
+            getDailyAyahUseCase(edition = config.language.editionKey)
         } catch (e: Exception) {
             AppResult.Error(exception = e, message = e.message ?: "Gagal memuat ayat")
         }
 
         provideContent {
-            DailyAyahContent(result = result)
+            DailyAyahContent(result = result, colors = colors)
         }
     }
 
     /**
-     * Internal composable switching between layouts based on current [AppResult] and [LocalSize].
+     * Internal composable switching between layouts based on current [AppResult], [LocalSize], and [DailyAyahColorTokens].
      */
     @Composable
-    private fun DailyAyahContent(result: AppResult<DailyAyah>) {
+    private fun DailyAyahContent(
+        result: AppResult<DailyAyah>,
+        colors: DailyAyahColorTokens
+    ) {
         when (result) {
             is AppResult.Success -> {
                 val ayah = result.data
                 val size = LocalSize.current
                 when {
                     size.width >= 260.dp && size.height >= 140.dp -> {
-                        DailyAyahFullLayout(ayah = ayah)
+                        DailyAyahFullLayout(ayah = ayah, colors = colors)
                     }
                     size.width >= 260.dp -> {
-                        DailyAyahCompactLayout(ayah = ayah)
+                        DailyAyahCompactLayout(ayah = ayah, colors = colors)
                     }
                     else -> {
-                        DailyAyahSmallLayout(ayah = ayah)
+                        DailyAyahSmallLayout(ayah = ayah, colors = colors)
                     }
                 }
             }
             is AppResult.Error -> {
                 DailyAyahFallbackLayout(
                     message = result.message.orEmpty().ifBlank { "Gagal memuat ayat hari ini." },
-                    isError = true
+                    isError = true,
+                    colors = colors
                 )
             }
             is AppResult.Loading -> {
                 DailyAyahFallbackLayout(
                     message = "Memuat ayat hari ini…",
-                    isError = false
+                    isError = false,
+                    colors = colors
                 )
             }
         }

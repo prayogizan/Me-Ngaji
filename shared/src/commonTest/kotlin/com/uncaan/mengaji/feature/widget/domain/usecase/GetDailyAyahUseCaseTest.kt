@@ -164,14 +164,41 @@ class GetDailyAyahUseCaseTest {
         assertEquals(sampleAyahToday, fakeCache.getCachedAyah())
     }
 
+    @Test
+    fun invoke_differentEditionRequested_bypassesCachedEditionAndCallsRepository() = runTest {
+        val englishAyah = sampleAyahToday.copy(
+            translationText = "God! There is no deity save Him",
+            translationEdition = "en.asad"
+        )
+        val fakeRepo = FakeDailyAyahRepository(AppResult.Success(englishAyah))
+        // Cache has Indonesian edition for today
+        val fakeCache = FakeLocalAyahCache(initialAyah = sampleAyahToday, initialDate = "2026-10-22")
+        val useCase = GetDailyAyahUseCase(
+            repository = fakeRepo,
+            cache = fakeCache,
+            currentDateProvider = { "2026-10-22" }
+        )
+
+        // Request English edition
+        val result = useCase(edition = "en.asad")
+
+        assertTrue(result is AppResult.Success)
+        assertEquals("en.asad", result.data.translationEdition)
+        assertEquals(1, fakeRepo.fetchCallsCount)
+        assertEquals("en.asad", fakeRepo.lastRequestedEdition)
+    }
+
     private class FakeDailyAyahRepository(
         private val response: AppResult<DailyAyah>
     ) : DailyAyahRepository {
         var fetchCallsCount = 0
             private set
+        var lastRequestedEdition: String? = null
+            private set
 
-        override suspend fun getDailyAyah(): AppResult<DailyAyah> {
+        override suspend fun getDailyAyah(edition: String): AppResult<DailyAyah> {
             fetchCallsCount++
+            lastRequestedEdition = edition
             return response
         }
     }

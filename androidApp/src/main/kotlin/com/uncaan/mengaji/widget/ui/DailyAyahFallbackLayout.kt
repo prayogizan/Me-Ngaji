@@ -23,6 +23,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.uncaan.mengaji.MainActivity
 import com.uncaan.mengaji.widget.action.RefreshAyahAction
+import com.uncaan.mengaji.widget.ui.theme.DailyAyahColorTokens
 import com.uncaan.mengaji.widget.ui.theme.DailyAyahWidgetColors
 
 /**
@@ -34,18 +35,20 @@ import com.uncaan.mengaji.widget.ui.theme.DailyAyahWidgetColors
  *
  * @param message Informational or instructional message displayed to the user.
  * @param isError Indicates whether this fallback represents an error state requiring a retry action.
+ * @param colors Color tokens matching the configured theme palette.
  * @param modifier Glance layout modifier applied to the root container.
  */
 @Composable
 fun DailyAyahFallbackLayout(
     message: String,
     isError: Boolean = false,
+    colors: DailyAyahColorTokens = DailyAyahWidgetColors.autoTokens,
     modifier: GlanceModifier = GlanceModifier
 ) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(DailyAyahWidgetColors.background)
+            .background(colors.background)
             .cornerRadius(16.dp)
             .padding(14.dp)
             .clickable(actionStartActivity<MainActivity>()),
@@ -59,7 +62,7 @@ fun DailyAyahFallbackLayout(
             Text(
                 text = "MeNgaji",
                 style = TextStyle(
-                    color = DailyAyahWidgetColors.surahBadgeText,
+                    color = colors.surahBadgeText,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -71,7 +74,7 @@ fun DailyAyahFallbackLayout(
             Text(
                 text = message,
                 style = TextStyle(
-                    color = DailyAyahWidgetColors.secondaryText,
+                    color = colors.secondaryText,
                     fontSize = 12.sp,
                     textAlign = TextAlign.Center
                 ),
@@ -83,7 +86,7 @@ fun DailyAyahFallbackLayout(
 
                 Box(
                     modifier = GlanceModifier
-                        .background(DailyAyahWidgetColors.buttonBackground)
+                        .background(colors.buttonBackground)
                         .cornerRadius(12.dp)
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                         .clickable(actionRunCallback<RefreshAyahAction>()),
@@ -92,7 +95,7 @@ fun DailyAyahFallbackLayout(
                     Text(
                         text = "Muat Ulang",
                         style = TextStyle(
-                            color = DailyAyahWidgetColors.surahBadgeText,
+                            color = colors.surahBadgeText,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
                         )

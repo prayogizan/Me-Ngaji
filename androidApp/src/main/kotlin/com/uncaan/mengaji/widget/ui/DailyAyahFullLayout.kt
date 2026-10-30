@@ -31,6 +31,7 @@ import com.uncaan.mengaji.R
 import com.uncaan.mengaji.feature.widget.domain.model.DailyAyah
 import com.uncaan.mengaji.widget.action.RefreshAyahAction
 import com.uncaan.mengaji.widget.action.createAyahDeepLinkAction
+import com.uncaan.mengaji.widget.ui.theme.DailyAyahColorTokens
 import com.uncaan.mengaji.widget.ui.theme.DailyAyahWidgetColors
 
 /**
@@ -45,11 +46,13 @@ import com.uncaan.mengaji.widget.ui.theme.DailyAyahWidgetColors
  * parameters (CMP-504). Tapping the refresh icon triggers [RefreshAyahAction] to force-update today's verse.
  *
  * @param ayah The current [DailyAyah] domain model to render.
+ * @param colors Color tokens matching the configured theme palette.
  * @param modifier Glance layout modifier applied to the root container.
  */
 @Composable
 fun DailyAyahFullLayout(
     ayah: DailyAyah,
+    colors: DailyAyahColorTokens = DailyAyahWidgetColors.autoTokens,
     modifier: GlanceModifier = GlanceModifier
 ) {
     val surahBadge = if (ayah.surahName.isNotBlank() && ayah.ayahNumberInSurah > 0) {
@@ -61,7 +64,7 @@ fun DailyAyahFullLayout(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(DailyAyahWidgetColors.background)
+            .background(colors.background)
             .cornerRadius(16.dp)
             .padding(14.dp)
             .clickable(createAyahDeepLinkAction(ayah))
@@ -76,7 +79,7 @@ fun DailyAyahFullLayout(
             ) {
                 Box(
                     modifier = GlanceModifier
-                        .background(DailyAyahWidgetColors.surahBadgeBackground)
+                        .background(colors.surahBadgeBackground)
                         .cornerRadius(8.dp)
                         .padding(horizontal = 8.dp, vertical = 4.dp),
                     contentAlignment = Alignment.Center
@@ -84,7 +87,7 @@ fun DailyAyahFullLayout(
                     Text(
                         text = surahBadge,
                         style = TextStyle(
-                            color = DailyAyahWidgetColors.surahBadgeText,
+                            color = colors.surahBadgeText,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -96,7 +99,7 @@ fun DailyAyahFullLayout(
                     Text(
                         text = ayah.surahNameArabic,
                         style = TextStyle(
-                            color = DailyAyahWidgetColors.arabicText,
+                            color = colors.arabicText,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -108,7 +111,7 @@ fun DailyAyahFullLayout(
                 Box(
                     modifier = GlanceModifier
                         .size(28.dp)
-                        .background(DailyAyahWidgetColors.buttonBackground)
+                        .background(colors.buttonBackground)
                         .cornerRadius(14.dp)
                         .clickable(actionRunCallback<RefreshAyahAction>()),
                     contentAlignment = Alignment.Center
@@ -117,7 +120,7 @@ fun DailyAyahFullLayout(
                         provider = ImageProvider(R.drawable.ic_refresh),
                         contentDescription = "Refresh Daily Ayah",
                         modifier = GlanceModifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(DailyAyahWidgetColors.iconTint)
+                        colorFilter = ColorFilter.tint(colors.iconTint)
                     )
                 }
             }
@@ -129,7 +132,7 @@ fun DailyAyahFullLayout(
                 text = ayah.arabicText,
                 modifier = GlanceModifier.fillMaxWidth(),
                 style = TextStyle(
-                    color = DailyAyahWidgetColors.arabicText,
+                    color = colors.arabicText,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.End
@@ -144,7 +147,7 @@ fun DailyAyahFullLayout(
                 text = ayah.translationText,
                 modifier = GlanceModifier.fillMaxWidth(),
                 style = TextStyle(
-                    color = DailyAyahWidgetColors.translationText,
+                    color = colors.translationText,
                     fontSize = 12.sp,
                     textAlign = TextAlign.Start
                 ),
