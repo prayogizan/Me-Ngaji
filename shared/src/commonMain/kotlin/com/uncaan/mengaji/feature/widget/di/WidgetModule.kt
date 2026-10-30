@@ -29,8 +29,18 @@ val widgetModule = module {
     singleOf(::DailyAyahApiServiceImpl) bind DailyAyahApiService::class
 
     // Repository
-    singleOf(::DailyAyahRepositoryImpl) bind DailyAyahRepository::class
+    single<DailyAyahRepository> {
+        DailyAyahRepositoryImpl(
+            apiService = get(),
+            ioDispatcher = get()
+        )
+    }
 
     // Domain Use Case
-    factoryOf(::GetDailyAyahUseCase)
+    factory {
+        GetDailyAyahUseCase(
+            repository = get(),
+            cache = get()
+        )
+    }
 }
