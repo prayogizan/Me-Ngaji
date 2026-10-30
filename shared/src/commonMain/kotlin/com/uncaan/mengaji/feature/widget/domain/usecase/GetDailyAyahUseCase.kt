@@ -36,12 +36,12 @@ class GetDailyAyahUseCase(
      * Executes the daily Ayah retrieval workflow.
      *
      * When [forceRefresh] is `false` (default):
-     * 1. Checks [LocalAyahCache] for an Ayah cached on the current calendar date.
-     * 2. If valid cache exists for today, returns [AppResult.Success] immediately without hitting the network.
-     * 3. If cache is missing or from a previous day, invokes [DailyAyahRepository.getDailyAyah].
+     * 1. Checks [LocalAyahCache] for an Ayah cached on the current calendar date matching the requested [edition].
+     * 2. If valid cache exists for today with matching edition, returns [AppResult.Success] immediately without hitting the network.
+     * 3. If cache is missing, from a previous day, or has a different translation edition, invokes [DailyAyahRepository.getDailyAyah].
      * 4. On successful network response, updates [LocalAyahCache] with the new Ayah and returns it.
-     * 5. On network failure, falls back to the most recent cached Ayah (regardless of date) if available,
-     *    or propagates [AppResult.Error] if cache is completely empty.
+     * 5. On network failure, falls back to the most recent cached Ayah (if matching edition) if available,
+     *    or propagates [AppResult.Error] if cache is empty or incompatible.
      *
      * When [forceRefresh] is `true`:
      * 1. Bypasses the cache date validation check and directly invokes [DailyAyahRepository.getDailyAyah].
@@ -49,29 +49,34 @@ class GetDailyAyahUseCase(
      * 3. On network failure, directly propagates [AppResult.Error] without falling back to stale cache,
      *    enabling background workers or refresh actions to detect the failure and schedule retries.
      *
+     * @param edition Identifier of the requested translation edition (e.g., "id.indonesian", "en.asad").
+     *                Defaults to `"id.indonesian"`.
      * @param forceRefresh When `true`, forces a fresh network retrieval bypassing today's cache check.
      *                     Defaults to `false`.
      * @return [AppResult.Success] containing the current or cached [DailyAyah], or [AppResult.Error] on failure.
      */
-    suspend operator fun invoke(forceRefresh: Boolean = false): AppResult<DailyAyah> {
+    suspend operator fun invoke(
+        edition: String = "id.indonesian",
+        forceRefresh: Boolean = false
+    ): AppResult<DailyAyah> {
         val today = currentDateProvider()
         val cachedDate = cache.getCacheDate()
         val cachedAyah = cache.getCachedAyah()
 
-        // Cache hit: today's quote is already saved (bypassed if forceRefresh is true)
-        if (!forceRefresh && cachedDate == today && cachedAyah != null) {
+        // Cache hit: today's quote is already saved for this specific translation edition
+        if (!forceRefresh && cachedDate == today && cachedAyah != null && cachedAyah.translationEdition == edition) {
             return AppResult.Success(cachedAyah)
         }
 
-        // Cache miss, expired, or force refresh: fetch from network
-        return when (val networkResult = repository.getDailyAyah()) {
+        // Cache miss, expired, different edition, or force refresh: fetch from network
+        return when (val networkResult = repository.getDailyAyah(edition = edition)) {
             is AppResult.Success -> {
                 cache.cacheAyah(networkResult.data)
                 networkResult
             }
             is AppResult.Error -> {
-                // Fallback to any previously cached Ayah only if NOT force refreshing
-                if (!forceRefresh && cachedAyah != null) {
+                // Fallback to any previously cached Ayah only if NOT force refreshing and edition matches
+                if (!forceRefresh && cachedAyah != null && cachedAyah.translationEdition == edition) {
                     AppResult.Success(cachedAyah)
                 } else {
                     networkResult

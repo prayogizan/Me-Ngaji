@@ -14,10 +14,12 @@ import com.uncaan.mengaji.feature.widget.domain.model.DailyAyah
 interface DailyAyahRepository {
 
     /**
-     * Fetches a random daily Ayah containing paired Arabic text and Indonesian translation.
+     * Fetches a random daily Ayah containing paired Arabic text and the requested translation edition.
      *
+     * @param edition Identifier of the translation edition (e.g., "id.indonesian", "en.asad").
+     *                Defaults to `"id.indonesian"`.
      * @return [AppResult.Success] containing the mapped [DailyAyah] domain entity,
      *         or [AppResult.Error] encapsulating network or serialization failures.
      */
-    suspend fun getDailyAyah(): AppResult<DailyAyah>
+    suspend fun getDailyAyah(edition: String = "id.indonesian"): AppResult<DailyAyah>
 }

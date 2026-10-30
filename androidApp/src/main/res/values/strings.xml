@@ -7,4 +7,17 @@
     <string name="widget_daily_ayah_empty">Belum ada ayat hari ini. Ketuk untuk memperbarui.</string>
     <string name="widget_daily_ayah_retry">Coba Lagi</string>
     <string name="widget_daily_ayah_surah_fallback">Al-Qur\'an</string>
+
+    <!-- Widget Configuration Screen -->
+    <string name="widget_config_title">Konfigurasi Widget</string>
+    <string name="widget_config_subtitle">Personalisasi tampilan widget Ayat Hari Ini di beranda.</string>
+    <string name="widget_config_preview_label">Pratinjau Widget</string>
+    <string name="widget_config_language_title">Bahasa Terjemahan</string>
+    <string name="widget_config_theme_title">Tema Tampilan</string>
+    <string name="widget_config_confirm_button">Pasang Widget</string>
+    <string name="widget_config_cancel_button">Batal</string>
+    <string name="widget_config_sample_surah">QS. Al-Baqarah: 255</string>
+    <string name="widget_config_sample_arabic">اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ</string>
+    <string name="widget_config_sample_trans_id">Allah, tidak ada tuhan selain Dia. Yang Mahahidup, yang terus-menerus mengurus (makhluk-Nya).</string>
+    <string name="widget_config_sample_trans_en">God! There is no deity save Him, the Ever-Living, the Self-Subsistent Fount of All Being.</string>
 </resources>

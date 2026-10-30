@@ -14,19 +14,24 @@ import com.uncaan.mengaji.feature.widget.domain.model.DailyAyah
  *
  * @receiver The raw list of edition DTOs from the API response envelope.
  * @param fetchedDate The ISO-8601 formatted calendar date ("yyyy-MM-dd") when the quote was fetched.
+ * @param expectedEdition Identifier of the expected translation edition (e.g., "id.indonesian", "en.asad").
+ *                        Defaults to `"id.indonesian"`.
  * @return A consolidated [DailyAyah] domain model.
- * @throws IllegalStateException If either the Arabic edition or Indonesian translation is missing from the list.
+ * @throws IllegalStateException If either the Arabic edition or translation edition is missing from the list.
  * @see DailyAyahEditionDto
  * @see DailyAyah
  */
-fun List<DailyAyahEditionDto>.toDailyAyah(fetchedDate: String): DailyAyah {
+fun List<DailyAyahEditionDto>.toDailyAyah(
+    fetchedDate: String,
+    expectedEdition: String = "id.indonesian"
+): DailyAyah {
     val arabicEdition = find { it.edition.identifier == "quran-uthmani" }
         ?: find { it.edition.type == "quran" }
         ?: throw IllegalStateException("Multi-edition response missing Arabic 'quran-uthmani' edition")
 
-    val translationEdition = find { it.edition.identifier == "id.indonesian" }
+    val translationEdition = find { it.edition.identifier == expectedEdition }
         ?: find { it.edition.type == "translation" }
-        ?: throw IllegalStateException("Multi-edition response missing Indonesian 'id.indonesian' translation edition")
+        ?: throw IllegalStateException("Multi-edition response missing translation edition for '$expectedEdition'")
 
     return DailyAyah(
         arabicText = arabicEdition.text,
