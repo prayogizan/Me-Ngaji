@@ -92,6 +92,31 @@ class DailyAyahRepositoryTest {
     }
 
     @Test
+    fun getDailyAyah_englishEdition_returnsMappedEnglishAyah() = runTest {
+        val englishResponseJson = sampleMultiEditionResponseJson
+            .replace("\"identifier\": \"id.indonesian\"", "\"identifier\": \"en.asad\"")
+            .replace(
+                "Dan orang-orang yang berusaha menentang ayat-ayat Kami untuk melemahkan (kemauan untuk beriman), mereka itu dimasukkan ke dalam azab.",
+                "Whereas those who strive against Our messages..."
+            )
+
+        val httpClient = createMockHttpClient(englishResponseJson, HttpStatusCode.OK)
+        val apiService = DailyAyahApiServiceImpl(httpClient)
+        val repository = DailyAyahRepositoryImpl(
+            apiService = apiService,
+            ioDispatcher = Dispatchers.Unconfined,
+            currentDateProvider = { "2026-10-30" }
+        )
+
+        val result = repository.getDailyAyah(edition = "en.asad")
+
+        assertTrue(result is AppResult.Success)
+        val ayah = result.data
+        assertEquals("en.asad", ayah.translationEdition)
+        assertEquals("Whereas those who strive against Our messages...", ayah.translationText)
+    }
+
+    @Test
     fun getDailyAyah_notFound_returnsAppResultError() = runTest {
         val httpClient = createMockHttpClient("{}", HttpStatusCode.NotFound)
         val apiService = DailyAyahApiServiceImpl(httpClient)

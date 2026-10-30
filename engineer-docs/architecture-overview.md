@@ -180,3 +180,16 @@ MeNgaji leverages Android Jetpack **WorkManager** (`2.10.0`) for battery-conscio
 - **Host Activity Lifecycle (`MainActivity`):** Configured with `android:launchMode="singleTop"` to intercept widget clicks via both `onCreate()` (cold start) and `onNewIntent()` (warm start / app already running) without duplicate Activity instantiation.
 - **Type-Safe Compose Route:** Deep links map to `AlQuranRoute(surahNumber = Int?, ayahNumber = Int?)`. Bottom navigation bar matching leverages `currentDestination.hasRoute(AlQuranRoute::class)` to retain active tab selection state.
 - **Automated Reader Search:** `AlQuranScreen` observes initial deep-link parameters via `LaunchedEffect(initialSurahNumber, initialAyahNumber)` and triggers `QuranViewModel.searchAyah("$surah:$ayah")`.
+
+### 6.3 Widget Configuration Activity & Theming Architecture (CMP-505)
+- **Configuration Contract:** `WidgetConfigActivity` is registered with `android:configure="com.uncaan.mengaji.widget.WidgetConfigActivity"` in `daily_ayah_widget_info.xml` and implements the standard Android AppWidget configuration lifecycle:
+  1. Sets `setResult(RESULT_CANCELED)` immediately in `onCreate()` to ensure back navigation or cancellation aborts draft widget placement.
+  2. Resolves `appWidgetId` from `AppWidgetManager.EXTRA_APPWIDGET_ID`.
+  3. Displays a real-time live preview panel reflecting user selections (Quranic Arabic typography via `getQuranArabicTextStyle()`, sample verse in selected language, and selected theme palette).
+  4. On confirmation, saves settings via `DailyAyahWidgetConfigManager`, triggers an immediate render for the newly created instance via `DailyAyahWidgetProvider().update(context, glanceId)`, returns `RESULT_OK` populated with `appWidgetId`, and finishes.
+- **Instance Persistence (`DailyAyahWidgetConfigManager`):** Preferences are stored per-instance in private `SharedPreferences` (`daily_ayah_widget_preferences`):
+  - `widget_config_${appWidgetId}_language`: `"id.indonesian"` | `"en.asad"`
+  - `widget_config_${appWidgetId}_theme`: `"light"` | `"dark"` | `"auto"`
+  Orphaned preferences are purged in `DailyAyahWidgetReceiver.onDeleted(context, appWidgetIds)`.
+- **Multi-Edition Translation Querying:** Parameterized `GetDailyAyahUseCase(edition: String)` and `DailyAyahRepository.getDailyAyah(edition: String)` query `ayah/random/editions/quran-uthmani,$edition`, invalidating cache when the requested edition differs from cached verse data.
+- **Glance Theme Tokens (`DailyAyahColorTokens`):** Provides fixed Light (`#FFF8F0` / `#00695C`), fixed Dark (`#1A1A2E` / `#FFD54F`), and dynamic Auto palettes across all Glance layout breakpoints (Full 4x2, Compact 4x1, Small 2x2, Fallback).
