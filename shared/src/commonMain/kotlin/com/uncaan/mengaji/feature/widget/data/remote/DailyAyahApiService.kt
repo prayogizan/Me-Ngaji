@@ -13,17 +13,19 @@ import io.ktor.client.request.get
 interface DailyAyahApiService {
 
     /**
-     * Retrieves a random Ayah with both Arabic Uthmani text and Indonesian translation editions.
+     * Retrieves a random Ayah with both Arabic Uthmani text and the specified translation edition.
      *
+     * @param edition Identifier of the translation edition (e.g., "id.indonesian", "en.asad").
+     *                Defaults to `"id.indonesian"`.
      * @return [DailyAyahResponseDto] containing the multi-edition verse data.
      */
-    suspend fun getRandomDailyAyah(): DailyAyahResponseDto
+    suspend fun getRandomDailyAyah(edition: String = "id.indonesian"): DailyAyahResponseDto
 }
 
 /**
  * Ktor-powered implementation of [DailyAyahApiService].
  *
- * Calls the endpoint: `ayah/random/editions/quran-uthmani,id.indonesian`.
+ * Calls the endpoint: `ayah/random/editions/quran-uthmani,{edition}`.
  *
  * @param httpClient Pre-configured Ktor [HttpClient] instance with JSON serialization.
  * @see DailyAyahApiService
@@ -32,7 +34,7 @@ class DailyAyahApiServiceImpl(
     private val httpClient: HttpClient
 ) : DailyAyahApiService {
 
-    override suspend fun getRandomDailyAyah(): DailyAyahResponseDto {
-        return httpClient.get("ayah/random/editions/quran-uthmani,id.indonesian").body()
+    override suspend fun getRandomDailyAyah(edition: String): DailyAyahResponseDto {
+        return httpClient.get("ayah/random/editions/quran-uthmani,$edition").body()
     }
 }
