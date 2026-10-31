@@ -4,7 +4,7 @@
   <img src="mengaji_app_logo.svg" width="120" height="120" alt="MeNgaji App Logo" />
 </p>
 
-# 🌙 MeNgaji (مِعْنَاقَاجِي)
+# 🌙 MeNgaji
 ### *Modern, Elegant, and Fast Cross-Platform Islamic Companion*
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4.10-7F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
@@ -103,7 +103,33 @@ MeNgaji is engineered with strict adherence to **Clean Architecture**, **SOLID P
 All user interactions in MeNgaji follow an unyielding **predictable cyclical loop** guaranteeing unidirectional state transitions and zero UI side effects.
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#0D5C3A', 'edgeLabelBackground':'#FFFFFF'}}}%%
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "darkMode": true,
+    "background": "#121413",
+    "primaryColor": "#0D5C3A",
+    "primaryTextColor": "#FFFFFF",
+    "primaryBorderColor": "#D4AF37",
+    "lineColor": "#D4AF37",
+    "textColor": "#E2E3DF",
+    "actorBkg": "#0D5C3A",
+    "actorBorder": "#D4AF37",
+    "actorTextColor": "#FFFFFF",
+    "actorLineColor": "#3D5A4C",
+    "signalColor": "#D4AF37",
+    "signalTextColor": "#E2E3DF",
+    "labelBoxBkgColor": "#0D5C3A",
+    "labelBoxBorderColor": "#D4AF37",
+    "labelTextColor": "#FFFFFF",
+    "loopTextColor": "#F3E5AB",
+    "altSectionBkgColor": "#18221D",
+    "sequenceNumberColor": "#FFFFFF",
+    "activationBorderColor": "#D4AF37",
+    "activationBkgColor": "#1B8253",
+    "edgeLabelBackground": "#1E2120"
+  }
+}}%%
 sequenceDiagram
     autonumber
     actor User as 👤 User / UI Screen
