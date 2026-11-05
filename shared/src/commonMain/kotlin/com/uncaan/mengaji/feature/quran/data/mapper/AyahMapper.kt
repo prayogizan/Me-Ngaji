@@ -34,18 +34,21 @@ fun List<AyahDto>.toDomain(): Ayah {
     }
 
     val base = arabicDto
+    val surah = base.surah
 
     return Ayah(
         number = base.number,
         text = arabicDto.text,
         translation = translationDto?.text ?: "",
         audioUrl = audioDto?.audio ?: base.audio,
-        surahNumber = base.surah.number,
-        surahName = base.surah.englishName,
-        surahArabicName = base.surah.name,
-        englishNameTranslation = base.surah.englishNameTranslation ?: "",
+        surahNumber = surah?.number ?: 0,
+        surahName = surah?.englishName ?: "",
+        surahArabicName = surah?.name ?: "",
+        englishNameTranslation = surah?.englishNameTranslation ?: "",
         numberInSurah = base.numberInSurah,
-        juz = base.juz
+        juz = base.juz,
+        page = base.page ?: 1,
+        hizbQuarter = base.hizbQuarter ?: 1
     )
 }
 
@@ -57,17 +60,20 @@ fun List<AyahDto>.toDomain(): Ayah {
  * @return The mapped domain [Ayah].
  */
 fun AyahDto.toDomain(translationText: String = ""): Ayah {
+    val surah = this.surah
     return Ayah(
         number = this.number,
         text = this.text,
         translation = translationText,
         audioUrl = this.audio,
-        surahNumber = this.surah.number,
-        surahName = this.surah.englishName,
-        surahArabicName = this.surah.name,
-        englishNameTranslation = this.surah.englishNameTranslation ?: "",
+        surahNumber = surah?.number ?: 0,
+        surahName = surah?.englishName ?: "",
+        surahArabicName = surah?.name ?: "",
+        englishNameTranslation = surah?.englishNameTranslation ?: "",
         numberInSurah = this.numberInSurah,
-        juz = this.juz
+        juz = this.juz,
+        page = this.page ?: 1,
+        hizbQuarter = this.hizbQuarter ?: 1
     )
 }
 
