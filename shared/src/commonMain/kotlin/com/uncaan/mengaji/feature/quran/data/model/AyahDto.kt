@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
  * @property audio The direct audio file URL, if present in the response.
  * @property audioSecondary Secondary audio URLs (such as alternative bitrate recitations).
  * @property edition Metadata regarding the edition/reciter for this DTO.
- * @property surah Surah chapter information.
+ * @property surah Surah chapter information, or `null` when nested inside a full Surah edition response.
  * @property numberInSurah The relative Ayah index within its parent Surah.
  * @property juz The Juz number.
  * @property page Physical Mushaf page number.
@@ -27,7 +27,7 @@ data class AyahDto(
     @SerialName("audio") val audio: String? = null,
     @SerialName("audioSecondary") val audioSecondary: List<String> = emptyList(),
     @SerialName("edition") val edition: EditionDto? = null,
-    @SerialName("surah") val surah: SurahDto,
+    @SerialName("surah") val surah: SurahDto? = null,
     @SerialName("numberInSurah") val numberInSurah: Int,
     @SerialName("juz") val juz: Int,
     @SerialName("page") val page: Int? = null,
