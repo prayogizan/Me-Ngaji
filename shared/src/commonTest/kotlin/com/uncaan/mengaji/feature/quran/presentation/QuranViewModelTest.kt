@@ -4,7 +4,11 @@ import com.uncaan.mengaji.core.audio.AudioPlayer
 import com.uncaan.mengaji.core.audio.AudioState
 import com.uncaan.mengaji.core.domain.model.AppResult
 import com.uncaan.mengaji.feature.quran.domain.model.Ayah
+import com.uncaan.mengaji.feature.quran.domain.model.MushafPage
 import com.uncaan.mengaji.feature.quran.domain.model.QuranEditionPresets
+import com.uncaan.mengaji.feature.quran.domain.model.RevelationType
+import com.uncaan.mengaji.feature.quran.domain.model.SurahDetail
+import com.uncaan.mengaji.feature.quran.domain.model.SurahSummary
 import com.uncaan.mengaji.feature.quran.domain.repository.QuranRepository
 import com.uncaan.mengaji.feature.quran.domain.usecase.GetAyahUseCase
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +54,46 @@ private class FakeQuranRepository : QuranRepository {
                 englishNameTranslation = "The Cow",
                 numberInSurah = 255,
                 juz = 3
+            )
+        )
+    }
+
+    override suspend fun getSurahList(forceRefresh: Boolean): AppResult<List<SurahSummary>> {
+        return AppResult.Success(emptyList())
+    }
+
+    override suspend fun getSurahDetail(
+        surahNumber: Int,
+        translationEdition: String,
+        audioEdition: String
+    ): AppResult<SurahDetail> {
+        return AppResult.Success(
+            SurahDetail(
+                number = surahNumber,
+                name = "سُورَةُ ٱلْفَاتِحَةِ",
+                englishName = "Al-Faatiha",
+                englishNameTranslation = "The Opening",
+                revelationType = RevelationType.MECCAN,
+                numberOfAyahs = 7,
+                ayahs = emptyList(),
+                translationEdition = translationEdition,
+                audioEdition = audioEdition
+            )
+        )
+    }
+
+    override suspend fun getMushafPage(
+        pageNumber: Int,
+        translationEdition: String
+    ): AppResult<MushafPage> {
+        return AppResult.Success(
+            MushafPage(
+                pageNumber = pageNumber,
+                ayahs = emptyList(),
+                surahs = emptyList(),
+                juzNumber = 1,
+                hizbQuarter = 1,
+                translationEdition = translationEdition
             )
         )
     }

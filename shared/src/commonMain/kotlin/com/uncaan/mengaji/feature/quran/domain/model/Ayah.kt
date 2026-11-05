@@ -15,6 +15,8 @@ package com.uncaan.mengaji.feature.quran.domain.model
  * @property englishNameTranslation English meaning of the Surah name (e.g. "The Cow").
  * @property numberInSurah The Ayah's position within its Surah (1-indexed).
  * @property juz The Juz (part) number containing this Ayah (1–30).
+ * @property page The physical Medina Mushaf page number containing this Ayah (1–604). Defaults to `1`.
+ * @property hizbQuarter The Hizb quarter index containing this Ayah (1–240). Defaults to `1`.
  */
 data class Ayah(
     val number: Int,
@@ -26,5 +28,7 @@ data class Ayah(
     val surahArabicName: String = "",
     val englishNameTranslation: String = "",
     val numberInSurah: Int,
-    val juz: Int
+    val juz: Int,
+    val page: Int = 1,
+    val hizbQuarter: Int = 1
 )
