@@ -5,6 +5,9 @@ import com.uncaan.mengaji.feature.quran.data.remote.QuranApiServiceImpl
 import com.uncaan.mengaji.feature.quran.data.repository.QuranRepositoryImpl
 import com.uncaan.mengaji.feature.quran.domain.repository.QuranRepository
 import com.uncaan.mengaji.feature.quran.domain.usecase.GetAyahUseCase
+import com.uncaan.mengaji.feature.quran.domain.usecase.GetMushafPageUseCase
+import com.uncaan.mengaji.feature.quran.domain.usecase.GetSurahDetailUseCase
+import com.uncaan.mengaji.feature.quran.domain.usecase.GetSurahListUseCase
 import com.uncaan.mengaji.feature.quran.presentation.QuranViewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -18,12 +21,15 @@ import org.koin.dsl.module
  * Binds:
  * - [QuranApiService] to [QuranApiServiceImpl] as a singleton.
  * - [QuranRepository] to [QuranRepositoryImpl] as a singleton.
- * - [GetAyahUseCase] as a factory.
+ * - [GetAyahUseCase], [GetSurahListUseCase], [GetSurahDetailUseCase], and [GetMushafPageUseCase] as factories.
  * - [QuranViewModel] as a lifecycle-aware ViewModel.
  *
  * @see QuranApiService
  * @see QuranRepository
  * @see GetAyahUseCase
+ * @see GetSurahListUseCase
+ * @see GetSurahDetailUseCase
+ * @see GetMushafPageUseCase
  * @see QuranViewModel
  */
 val quranModule = module {
@@ -35,6 +41,9 @@ val quranModule = module {
 
     // Use Cases
     factoryOf(::GetAyahUseCase)
+    factoryOf(::GetSurahListUseCase)
+    factoryOf(::GetSurahDetailUseCase)
+    factoryOf(::GetMushafPageUseCase)
 
     // ViewModels
     viewModelOf(::QuranViewModel)
