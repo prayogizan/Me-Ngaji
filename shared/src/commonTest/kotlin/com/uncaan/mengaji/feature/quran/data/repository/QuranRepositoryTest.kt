@@ -1,8 +1,13 @@
 package com.uncaan.mengaji.feature.quran.data.repository
 
 import com.uncaan.mengaji.core.domain.model.AppResult
+import com.uncaan.mengaji.feature.quran.data.model.SurahSummaryDto
 import com.uncaan.mengaji.feature.quran.data.remote.QuranApiServiceImpl
+import com.uncaan.mengaji.feature.quran.domain.model.AyahBookmark
+import com.uncaan.mengaji.feature.quran.domain.model.LastReadProgress
+import com.uncaan.mengaji.feature.quran.domain.model.ReaderMode
 import com.uncaan.mengaji.feature.quran.domain.model.RevelationType
+import com.uncaan.mengaji.testutil.FakeLocalRecitationCache
 import com.uncaan.mengaji.testutil.createMockHttpClient
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -18,6 +23,9 @@ import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class QuranRepositoryTest {
@@ -82,7 +90,7 @@ class QuranRepositoryTest {
               "edition": {
                 "identifier": "ar.alafasy",
                 "language": "ar",
-                "name": "Alafasy",
+                "name": "Mishary Rashid Alafasy",
                 "englishName": "Alafasy",
                 "format": "audio",
                 "type": "versebyverse"
@@ -228,14 +236,6 @@ class QuranRepositoryTest {
                 {
                   "number": 1,
                   "text": "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
-                  "surah": {
-                    "number": 1,
-                    "name": "سُورَةُ ٱلْفَاتِحَةِ",
-                    "englishName": "Al-Faatiha",
-                    "englishNameTranslation": "The Opening",
-                    "revelationType": "Meccan",
-                    "numberOfAyahs": 7
-                  },
                   "numberInSurah": 1,
                   "juz": 1,
                   "page": 1,
@@ -267,14 +267,6 @@ class QuranRepositoryTest {
                 {
                   "number": 1,
                   "text": "In the name of Allah, the Entirely Merciful, the Especially Merciful.",
-                  "surah": {
-                    "number": 1,
-                    "name": "سُورَةُ ٱلْفَاتِحَةِ",
-                    "englishName": "Al-Faatiha",
-                    "englishNameTranslation": "The Opening",
-                    "revelationType": "Meccan",
-                    "numberOfAyahs": 7
-                  },
                   "numberInSurah": 1,
                   "juz": 1,
                   "page": 1,
@@ -308,7 +300,8 @@ class QuranRepositoryTest {
     fun getAyah_success_returnsMappedDomainModel() = runTest {
         val client = createMockHttpClient(sampleSuccessMultiEditionJson)
         val apiService = QuranApiServiceImpl(client)
-        val repository = QuranRepositoryImpl(apiService)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
 
         val result = repository.getAyah("2:255", "en.sahih", "ar.alafasy")
 
@@ -335,7 +328,8 @@ class QuranRepositoryTest {
             statusCode = HttpStatusCode.NotFound
         )
         val apiService = QuranApiServiceImpl(client)
-        val repository = QuranRepositoryImpl(apiService)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
 
         val result = repository.getAyah("999:999", "en.sahih", "ar.alafasy")
 
@@ -356,7 +350,8 @@ class QuranRepositoryTest {
             }
         }
         val apiService = QuranApiServiceImpl(client)
-        val repository = QuranRepositoryImpl(apiService)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
 
         val result = repository.getAyah("1:1", "en.sahih", "ar.alafasy")
 
@@ -383,9 +378,10 @@ class QuranRepositoryTest {
             }
         }
         val apiService = QuranApiServiceImpl(client)
-        val repository = QuranRepositoryImpl(apiService)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
 
-        // First call hits network
+        // First call hits network and saves into local cache
         val firstResult = repository.getSurahList(forceRefresh = false)
         assertTrue(firstResult is AppResult.Success)
         assertEquals(2, firstResult.data.size)
@@ -393,6 +389,8 @@ class QuranRepositoryTest {
         assertEquals(RevelationType.MECCAN, firstResult.data[0].revelationType)
         assertEquals(RevelationType.MEDINAN, firstResult.data[1].revelationType)
         assertEquals(1, networkCallCount)
+        assertNotNull(cache.storedCatalog)
+        assertEquals(2, cache.storedCatalog?.size)
 
         // Second call with forceRefresh = false returns in-memory cache without network I/O
         val cachedResult = repository.getSurahList(forceRefresh = false)
@@ -407,10 +405,47 @@ class QuranRepositoryTest {
     }
 
     @Test
+    fun getSurahList_networkFailure_fallsBackToLocalCachedCatalog() = runTest {
+        val mockEngine = MockEngine {
+            throw IOException("Network offline")
+        }
+        val client = HttpClient(mockEngine) {
+            expectSuccess = true
+            defaultRequest { url("https://api.alquran.cloud/v1/") }
+            install(ContentNegotiation) {
+                json(Json { ignoreUnknownKeys = true; isLenient = true })
+            }
+        }
+        val apiService = QuranApiServiceImpl(client)
+        val cache = FakeLocalRecitationCache().apply {
+            cacheSurahCatalog(
+                listOf(
+                    SurahSummaryDto(
+                        number = 1,
+                        name = "سُورَةُ ٱلْفَاتِحَةِ",
+                        englishName = "Al-Faatiha",
+                        englishNameTranslation = "The Opening",
+                        numberOfAyahs = 7,
+                        revelationType = "Meccan"
+                    )
+                )
+            )
+        }
+        val repository = QuranRepositoryImpl(apiService, cache)
+
+        val result = repository.getSurahList(forceRefresh = false)
+
+        assertTrue(result is AppResult.Success)
+        assertEquals(1, result.data.size)
+        assertEquals("Al-Faatiha", result.data[0].englishName)
+    }
+
+    @Test
     fun getSurahDetail_success_mergesMultiEditionAyahs() = runTest {
         val client = createMockHttpClient(sampleSurahDetailJson)
         val apiService = QuranApiServiceImpl(client)
-        val repository = QuranRepositoryImpl(apiService)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
 
         val result = repository.getSurahDetail(
             surahNumber = 1,
@@ -440,7 +475,8 @@ class QuranRepositoryTest {
     fun getMushafPage_success_mergesMultiEditionPageVersesAndSurahs() = runTest {
         val client = createMockHttpClient(sampleMushafPageJson)
         val apiService = QuranApiServiceImpl(client)
-        val repository = QuranRepositoryImpl(apiService)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
 
         val result = repository.getMushafPage(
             pageNumber = 1,
@@ -458,5 +494,112 @@ class QuranRepositoryTest {
         assertEquals(1, page.ayahs.size)
         assertEquals("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", page.ayahs[0].text)
         assertEquals("In the name of Allah, the Entirely Merciful, the Especially Merciful.", page.ayahs[0].translation)
+    }
+
+    @Test
+    fun lastReadProgress_saveAndRetrieve_returnsExpectedDomainEntity() = runTest {
+        val client = createMockHttpClient(sampleSuccessMultiEditionJson)
+        val apiService = QuranApiServiceImpl(client)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
+
+        assertNull(repository.getLastReadProgress())
+
+        val progress = LastReadProgress(
+            surahNumber = 2,
+            surahNameEnglish = "Al-Baqara",
+            surahNameArabic = "سُورَةُ البَقَرَةِ",
+            ayahNumberInSurah = 255,
+            pageNumber = 42,
+            juzNumber = 3,
+            preferredReaderMode = ReaderMode.VERSE_LIST,
+            updatedAtEpochMillis = 1730000000000L
+        )
+
+        repository.saveLastReadProgress(progress)
+
+        val retrieved = repository.getLastReadProgress()
+        assertNotNull(retrieved)
+        assertEquals(progress, retrieved)
+    }
+
+    @Test
+    fun getBookmarks_whenEmpty_returnsEmptyList() = runTest {
+        val client = createMockHttpClient(sampleSuccessMultiEditionJson)
+        val apiService = QuranApiServiceImpl(client)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
+
+        val bookmarks = repository.getBookmarks()
+        assertTrue(bookmarks.isEmpty())
+    }
+
+    @Test
+    fun toggleBookmark_addsAndRemovesCorrectly() = runTest {
+        val client = createMockHttpClient(sampleSuccessMultiEditionJson)
+        val apiService = QuranApiServiceImpl(client)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
+
+        val bookmark1 = AyahBookmark(
+            globalAyahNumber = 262,
+            surahNumber = 2,
+            surahNameEnglish = "Al-Baqara",
+            surahNameArabic = "سُورَةُ البَقَرَةِ",
+            ayahNumberInSurah = 255,
+            pageNumber = 42,
+            arabicSnippet = "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ",
+            savedAtEpochMillis = 1730000001000L
+        )
+
+        // Toggle add: returns true
+        val added = repository.toggleBookmark(bookmark1)
+        assertTrue(added)
+        assertEquals(1, repository.getBookmarks().size)
+        assertEquals(262, repository.getBookmarks().first().globalAyahNumber)
+
+        // Toggle remove: returns false
+        val removed = repository.toggleBookmark(bookmark1)
+        assertFalse(removed)
+        assertTrue(repository.getBookmarks().isEmpty())
+    }
+
+    @Test
+    fun toggleBookmark_maintainsDescendingOrder() = runTest {
+        val client = createMockHttpClient(sampleSuccessMultiEditionJson)
+        val apiService = QuranApiServiceImpl(client)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
+
+        val olderBookmark = AyahBookmark(
+            globalAyahNumber = 1,
+            surahNumber = 1,
+            surahNameEnglish = "Al-Faatiha",
+            surahNameArabic = "سُورَةُ ٱلْفَاتِحَةِ",
+            ayahNumberInSurah = 1,
+            pageNumber = 1,
+            arabicSnippet = "بِسْمِ ٱللَّهِ",
+            savedAtEpochMillis = 1730000001000L
+        )
+
+        val newerBookmark = AyahBookmark(
+            globalAyahNumber = 262,
+            surahNumber = 2,
+            surahNameEnglish = "Al-Baqara",
+            surahNameArabic = "سُورَةُ البَقَرَةِ",
+            ayahNumberInSurah = 255,
+            pageNumber = 42,
+            arabicSnippet = "اللَّهُ لَا إِلَٰهَ",
+            savedAtEpochMillis = 1730000002000L
+        )
+
+        repository.toggleBookmark(olderBookmark)
+        repository.toggleBookmark(newerBookmark)
+
+        val bookmarks = repository.getBookmarks()
+        assertEquals(2, bookmarks.size)
+        // Newest must be first
+        assertEquals(262, bookmarks[0].globalAyahNumber)
+        assertEquals(1, bookmarks[1].globalAyahNumber)
     }
 }
