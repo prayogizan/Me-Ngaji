@@ -62,14 +62,15 @@ shared/src/commonMain/kotlin/com/uncaan/mengaji/
 ├── feature/
 │   ├── quran/
 │   │   ├── data/
-│   │   │   ├── model/         # AyahResponse, AyahDto, EditionDto, SurahDto
+│   │   │   ├── model/         # AyahResponse, AyahDto, EditionDto, SurahDto, LastReadProgressDto, AyahBookmarkDto
 │   │   │   ├── remote/        # QuranApiService, QuranApiServiceImpl
+│   │   │   ├── local/         # LocalRecitationCache (expect/actual SharedPreferences / NSUserDefaults)
 │   │   │   ├── repository/    # QuranRepositoryImpl
-│   │   │   └── mapper/        # AyahMapper.kt (DTO -> Domain entity)
+│   │   │   └── mapper/        # AyahMapper.kt, SurahMapper.kt, RecitationMapper.kt
 │   │   ├── domain/
-│   │   │   ├── model/         # Ayah, Surah, Edition, AudioStream
+│   │   │   ├── model/         # Ayah, Surah, Edition, SurahSummary, SurahDetail, MushafPage, LastReadProgress, AyahBookmark
 │   │   │   ├── repository/    # QuranRepository (interface)
-│   │   │   └── usecase/       # GetAyahUseCase, SearchAyahUseCase
+│   │   │   └── usecase/       # GetAyahUseCase, GetSurahListUseCase, GetSurahDetailUseCase, GetMushafPageUseCase, GetLastReadUseCase, SaveLastReadUseCase, GetBookmarksUseCase, ToggleBookmarkUseCase
 │   │   ├── presentation/
 │   │   │   ├── AlQuranScreen.kt
 │   │   │   ├── QuranViewModel.kt
@@ -193,3 +194,35 @@ MeNgaji leverages Android Jetpack **WorkManager** (`2.10.0`) for battery-conscio
   Orphaned preferences are purged in `DailyAyahWidgetReceiver.onDeleted(context, appWidgetIds)`.
 - **Multi-Edition Translation Querying:** Parameterized `GetDailyAyahUseCase(edition: String)` and `DailyAyahRepository.getDailyAyah(edition: String)` query `ayah/random/editions/quran-uthmani,$edition`, invalidating cache when the requested edition differs from cached verse data.
 - **Glance Theme Tokens (`DailyAyahColorTokens`):** Provides fixed Light (`#FFF8F0` / `#00695C`), fixed Dark (`#1A1A2E` / `#FFD54F`), and dynamic Auto palettes across all Glance layout breakpoints (Full 4x2, Compact 4x1, Small 2x2, Fallback).
+
+---
+
+## 7. Recitation Persistence, Last Read & Bookmarks Architecture (CMP-602)
+
+MeNgaji implements persistent local caching for Quran recitation state, personal ayah bookmarks, and offline catalog resilience across Android and iOS platforms:
+
+### 7.1 Cross-Platform Storage Abstraction (`LocalRecitationCache`)
+- **Storage Contract:** Pure interface `LocalRecitationCache` in `commonMain` implemented by `PlatformLocalRecitationCache` via Kotlin `expect`/`actual`:
+  - **Android (`androidMain`):** Backed by Android `SharedPreferences` (`"mengaji_recitation_cache"`, `Context.MODE_PRIVATE`).
+  - **iOS (`iosMain`):** Backed by `platform.Foundation.NSUserDefaults.standardUserDefaults`.
+- **Storage Keys:**
+  - `mengaji_last_read_progress_v1`: JSON-serialized `LastReadProgressDto`.
+  - `mengaji_ayah_bookmarks_v1`: JSON-serialized `List<AyahBookmarkDto>`.
+  - `mengaji_surah_catalog_cache_v1`: JSON-serialized `List<SurahSummaryDto>`.
+
+### 7.2 Fault Tolerance & Malformed Payload Recovery
+All JSON deserializations through `kotlinx.serialization.json.Json` (`ignoreUnknownKeys = true`, `isLenient = true`) are wrapped in resilient error handling:
+- Malformed or corrupted single items (`LastReadProgressDto`) fail gracefully to `null`.
+- Malformed or corrupted list items (`List<AyahBookmarkDto>`, `List<SurahSummaryDto>`) fail gracefully to `emptyList()` or `null`.
+- The application runtime will never crash due to corrupted preferences data.
+
+### 7.3 Offline 114-Surah Catalog Resilience
+- `QuranRepositoryImpl.getSurahList(forceRefresh)` caches remote API payloads into `localCache.cacheSurahCatalog(rawDtos)` upon every successful network response.
+- In the event of network timeouts, connection drops, or offline usage, `getSurahList` automatically queries `localCache.getCachedSurahCatalog()`, maps the cached entries to pure domain `SurahSummary` entities, and emits `AppResult.Success(cachedList)`.
+
+### 7.4 Bookmark Toggling & Invariant Sorting
+- `QuranRepository.toggleBookmark(bookmark)` provides idempotent bookmark state management:
+  - If `bookmark.globalAyahNumber` already exists in storage, the verse is removed and `false` is returned.
+  - If absent, the verse is appended and `true` is returned.
+- Invariant ordering: Persisted bookmarks and retrieval results through `GetBookmarksUseCase` are consistently sorted with newest first (`savedAtEpochMillis` descending).
+

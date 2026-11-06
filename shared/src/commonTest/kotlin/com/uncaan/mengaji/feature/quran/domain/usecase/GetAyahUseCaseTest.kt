@@ -2,6 +2,8 @@ package com.uncaan.mengaji.feature.quran.domain.usecase
 
 import com.uncaan.mengaji.core.domain.model.AppResult
 import com.uncaan.mengaji.feature.quran.domain.model.Ayah
+import com.uncaan.mengaji.feature.quran.domain.model.AyahBookmark
+import com.uncaan.mengaji.feature.quran.domain.model.LastReadProgress
 import com.uncaan.mengaji.feature.quran.domain.model.MushafPage
 import com.uncaan.mengaji.feature.quran.domain.model.RevelationType
 import com.uncaan.mengaji.feature.quran.domain.model.SurahDetail
@@ -157,6 +159,28 @@ class FakeQuranRepository(
                 translationEdition = translationEdition
             )
         )
+    }
+
+    var lastReadProgress: LastReadProgress? = null
+    val bookmarksList: MutableList<AyahBookmark> = mutableListOf()
+
+    override suspend fun getLastReadProgress(): LastReadProgress? = lastReadProgress
+
+    override suspend fun saveLastReadProgress(progress: LastReadProgress) {
+        lastReadProgress = progress
+    }
+
+    override suspend fun getBookmarks(): List<AyahBookmark> = bookmarksList.toList()
+
+    override suspend fun toggleBookmark(bookmark: AyahBookmark): Boolean {
+        val index = bookmarksList.indexOfFirst { it.globalAyahNumber == bookmark.globalAyahNumber }
+        return if (index >= 0) {
+            bookmarksList.removeAt(index)
+            false
+        } else {
+            bookmarksList.add(bookmark)
+            true
+        }
     }
 }
 

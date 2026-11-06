@@ -4,6 +4,8 @@ import com.uncaan.mengaji.core.audio.AudioPlayer
 import com.uncaan.mengaji.core.audio.AudioState
 import com.uncaan.mengaji.core.domain.model.AppResult
 import com.uncaan.mengaji.feature.quran.domain.model.Ayah
+import com.uncaan.mengaji.feature.quran.domain.model.AyahBookmark
+import com.uncaan.mengaji.feature.quran.domain.model.LastReadProgress
 import com.uncaan.mengaji.feature.quran.domain.model.MushafPage
 import com.uncaan.mengaji.feature.quran.domain.model.QuranEditionPresets
 import com.uncaan.mengaji.feature.quran.domain.model.RevelationType
@@ -97,6 +99,14 @@ private class FakeQuranRepository : QuranRepository {
             )
         )
     }
+
+    override suspend fun getLastReadProgress(): LastReadProgress? = null
+
+    override suspend fun saveLastReadProgress(progress: LastReadProgress) {}
+
+    override suspend fun getBookmarks(): List<AyahBookmark> = emptyList()
+
+    override suspend fun toggleBookmark(bookmark: AyahBookmark): Boolean = true
 }
 
 private class FakeAudioPlayer : AudioPlayer {
