@@ -2,6 +2,8 @@ package com.uncaan.mengaji.feature.quran.domain.repository
 
 import com.uncaan.mengaji.core.domain.model.AppResult
 import com.uncaan.mengaji.feature.quran.domain.model.Ayah
+import com.uncaan.mengaji.feature.quran.domain.model.AyahBookmark
+import com.uncaan.mengaji.feature.quran.domain.model.LastReadProgress
 import com.uncaan.mengaji.feature.quran.domain.model.MushafPage
 import com.uncaan.mengaji.feature.quran.domain.model.QuranEditionPresets
 import com.uncaan.mengaji.feature.quran.domain.model.SurahDetail
@@ -67,4 +69,41 @@ interface QuranRepository {
         pageNumber: Int,
         translationEdition: String = QuranEditionPresets.DEFAULT_TRANSLATION
     ): AppResult<MushafPage>
+
+    /**
+     * Retrieves the user's last recorded recitation progress, or `null` if none has been saved.
+     *
+     * @return The persisted [LastReadProgress] domain model, or `null` if no progress is recorded.
+     * @see LastReadProgress
+     */
+    suspend fun getLastReadProgress(): LastReadProgress?
+
+    /**
+     * Persists the user's current recitation progress into local storage.
+     *
+     * @param progress The [LastReadProgress] domain model to store.
+     * @see LastReadProgress
+     */
+    suspend fun saveLastReadProgress(progress: LastReadProgress)
+
+    /**
+     * Retrieves all saved ayah bookmarks, sorted newest first ([AyahBookmark.savedAtEpochMillis] descending).
+     *
+     * @return List of persisted [AyahBookmark] entities, or an empty list if none are saved.
+     * @see AyahBookmark
+     */
+    suspend fun getBookmarks(): List<AyahBookmark>
+
+    /**
+     * Toggles the bookmark state for an Ayah.
+     *
+     * If a bookmark with matching [AyahBookmark.globalAyahNumber] exists, it is removed and `false` is returned.
+     * If not present, it is added to the bookmarks list and `true` is returned.
+     * Persisted bookmarks remain sorted descending by [AyahBookmark.savedAtEpochMillis].
+     *
+     * @param bookmark The [AyahBookmark] to add or remove.
+     * @return `true` if the bookmark was added, `false` if it was removed.
+     * @see AyahBookmark
+     */
+    suspend fun toggleBookmark(bookmark: AyahBookmark): Boolean
 }
