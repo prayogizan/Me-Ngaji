@@ -226,3 +226,26 @@ All JSON deserializations through `kotlinx.serialization.json.Json` (`ignoreUnkn
   - If absent, the verse is appended and `true` is returned.
 - Invariant ordering: Persisted bookmarks and retrieval results through `GetBookmarksUseCase` are consistently sorted with newest first (`savedAtEpochMillis` descending).
 
+---
+
+## 8. Continuous Verse Queue Audio Engine & KeepScreenOn Architecture (CMP-603)
+
+MeNgaji implements a reactive, gapless recitation queue playback engine and display sleep management architecture:
+
+### 8.1 Unified Audio Engine Abstraction (`AudioPlayer` & `AyahAudioPlayer`)
+- **Queue Streaming Contract (`AudioPlayer`):** Abstract interface in `core/audio/` implemented by `expect class AyahAudioPlayer`:
+  - `playQueue(tracks: List<AudioTrack>, startIndex: Int)`: Seamlessly streams a list of verses without audio gaps.
+  - `skipToNext()` / `skipToPrevious()`: Queue transport navigation with bounds checking and repeat mode wrapping.
+  - `setPlaybackSpeed(speed: Float)`: Configures playback rate (`0.75x`, `1.0x`, `1.25x`, `1.5x`).
+  - `setRepeatMode(mode: AudioRepeatMode)`: Configures loop behavior (`NONE`, `REPEAT_AYAH`, `REPEAT_SURAH`).
+  - `play(url: String)`: Backward-compatible single-track playback wrapper.
+- **Rich Reactive State (`AudioState`):** Emitted as `StateFlow<AudioState>` with live verse tracking identifiers (`currentUrl`, `currentSurahNumber`, `currentAyahNumberInSurah`, `currentGlobalAyahNumber`, `playbackSpeed`, `repeatMode`, `isPlaying`, `isBuffering`, `error`).
+- **Android Native Engine (`androidMain`):** Powered by AndroidX Media3 `ExoPlayer.setMediaItems(items, startIndex, C.TIME_UNSET)` with `Player.Listener.onMediaItemTransition` decoding `AudioTrack` tags to emit active verse metadata in real time.
+- **iOS Native Engine (`iosMain`):** Powered by AVFoundation `AVPlayer` with `AVAudioSessionCategoryPlayback` and notification observer on `AVPlayerItemDidPlayToEndTimeNotification` for automated track progression and repeat handling.
+
+### 8.2 KeepScreenOn Platform Abstraction (`core/ui/KeepScreenOn.kt`)
+- **Lifecycle-Safe Composable Contract:** `expect @Composable fun KeepScreenOn(enabled: Boolean = true)`
+  - **Android (`androidMain`):** Uses `LocalView.current.keepScreenOn = enabled` inside `DisposableEffect(enabled)`, safely restoring previous window state on disposal.
+  - **iOS (`iosMain`):** Configures `UIApplication.sharedApplication.idleTimerDisabled = enabled` inside `DisposableEffect(enabled)`, resetting to previous timer configuration on disposal.
+
+
