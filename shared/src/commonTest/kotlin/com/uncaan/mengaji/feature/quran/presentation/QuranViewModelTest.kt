@@ -1,7 +1,9 @@
 package com.uncaan.mengaji.feature.quran.presentation
 
 import com.uncaan.mengaji.core.audio.AudioPlayer
+import com.uncaan.mengaji.core.audio.AudioRepeatMode
 import com.uncaan.mengaji.core.audio.AudioState
+import com.uncaan.mengaji.core.audio.AudioTrack
 import com.uncaan.mengaji.core.domain.model.AppResult
 import com.uncaan.mengaji.feature.quran.domain.model.Ayah
 import com.uncaan.mengaji.feature.quran.domain.model.AyahBookmark
@@ -110,32 +112,69 @@ private class FakeQuranRepository : QuranRepository {
 }
 
 private class FakeAudioPlayer : AudioPlayer {
-    private val _audioState = MutableStateFlow<AudioState>(AudioState.Idle)
+    private val _audioState = MutableStateFlow(AudioState.IDLE)
     override val audioState: StateFlow<AudioState> = _audioState.asStateFlow()
 
     var lastPlayedUrl: String? = null
+    var lastQueueTracks: List<AudioTrack>? = null
+    var lastQueueStartIndex: Int? = null
     var pauseCount: Int = 0
     var resumeCount: Int = 0
     var stopCount: Int = 0
+    var nextCount: Int = 0
+    var prevCount: Int = 0
+    var speedConfigured: Float? = null
+    var repeatModeConfigured: AudioRepeatMode? = null
 
     override fun play(url: String) {
         lastPlayedUrl = url
-        _audioState.value = AudioState.Playing
+        _audioState.value = AudioState(isPlaying = true, currentUrl = url)
+    }
+
+    override fun playQueue(tracks: List<AudioTrack>, startIndex: Int) {
+        lastQueueTracks = tracks
+        lastQueueStartIndex = startIndex
+        val track = tracks.getOrNull(startIndex)
+        _audioState.value = AudioState(
+            isPlaying = true,
+            currentUrl = track?.url,
+            currentSurahNumber = track?.surahNumber,
+            currentAyahNumberInSurah = track?.ayahNumberInSurah,
+            currentGlobalAyahNumber = track?.globalAyahNumber
+        )
     }
 
     override fun pause() {
         pauseCount++
-        _audioState.value = AudioState.Paused
+        _audioState.value = _audioState.value.copy(isPlaying = false)
     }
 
     override fun resume() {
         resumeCount++
-        _audioState.value = AudioState.Playing
+        _audioState.value = _audioState.value.copy(isPlaying = true)
     }
 
     override fun stop() {
         stopCount++
-        _audioState.value = AudioState.Idle
+        _audioState.value = AudioState.IDLE
+    }
+
+    override fun skipToNext() {
+        nextCount++
+    }
+
+    override fun skipToPrevious() {
+        prevCount++
+    }
+
+    override fun setPlaybackSpeed(speed: Float) {
+        speedConfigured = speed
+        _audioState.value = _audioState.value.copy(playbackSpeed = speed)
+    }
+
+    override fun setRepeatMode(mode: AudioRepeatMode) {
+        repeatModeConfigured = mode
+        _audioState.value = _audioState.value.copy(repeatMode = mode)
     }
 
     override fun release() {
@@ -172,7 +211,7 @@ class QuranViewModelTest {
         assertEquals("", viewModel.searchQuery.value)
         assertEquals(QuranEditionPresets.DEFAULT_TRANSLATION, viewModel.selectedTranslation.value)
         assertEquals(QuranEditionPresets.DEFAULT_RECITATION, viewModel.selectedRecitation.value)
-        assertEquals(AudioState.Idle, viewModel.audioState.value)
+        assertEquals(AudioState.IDLE, viewModel.audioState.value)
     }
 
     @Test
@@ -293,7 +332,7 @@ class QuranViewModelTest {
         viewModel.onAction(QuranUiAction.PlayAudio(audioUrl))
 
         assertEquals(audioUrl, fakeAudioPlayer.lastPlayedUrl)
-        assertEquals(AudioState.Playing, viewModel.audioState.value)
+        assertTrue(viewModel.audioState.value.isPlaying)
     }
 
     @Test
@@ -302,7 +341,7 @@ class QuranViewModelTest {
         viewModel.onAction(QuranUiAction.PauseAudio)
 
         assertEquals(1, fakeAudioPlayer.pauseCount)
-        assertEquals(AudioState.Paused, viewModel.audioState.value)
+        assertTrue(viewModel.audioState.value.isPaused)
     }
 
     @Test
@@ -312,7 +351,7 @@ class QuranViewModelTest {
         viewModel.onAction(QuranUiAction.ResumeAudio)
 
         assertEquals(1, fakeAudioPlayer.resumeCount)
-        assertEquals(AudioState.Playing, viewModel.audioState.value)
+        assertTrue(viewModel.audioState.value.isPlaying)
     }
 
     @Test
@@ -321,18 +360,18 @@ class QuranViewModelTest {
         viewModel.onAction(QuranUiAction.StopAudio)
 
         assertEquals(1, fakeAudioPlayer.stopCount)
-        assertEquals(AudioState.Idle, viewModel.audioState.value)
+        assertTrue(viewModel.audioState.value.isIdle)
     }
 
     @Test
     fun searchAyah_automaticallyStopsAudio() = runTest {
         viewModel.onAction(QuranUiAction.PlayAudio("https://example.com/audio.mp3"))
-        assertEquals(AudioState.Playing, viewModel.audioState.value)
+        assertTrue(viewModel.audioState.value.isPlaying)
 
         viewModel.searchAyah("1:1")
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertTrue(fakeAudioPlayer.stopCount >= 1)
-        assertEquals(AudioState.Idle, viewModel.audioState.value)
+        assertTrue(viewModel.audioState.value.isIdle)
     }
 }

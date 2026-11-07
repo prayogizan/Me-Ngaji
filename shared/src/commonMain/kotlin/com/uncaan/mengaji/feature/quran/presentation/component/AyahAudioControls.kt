@@ -75,10 +75,10 @@ fun AyahAudioControls(
     modifier: Modifier = Modifier
 ) {
     val isAudioAvailable = !audioUrl.isNullOrBlank()
-    val isPlaying = audioState is AudioState.Playing
-    val isBuffering = audioState is AudioState.Buffering
-    val isPaused = audioState is AudioState.Paused
-    val isActive = isPlaying || isBuffering || isPaused
+    val isPlaying = audioState.isPlaying
+    val isBuffering = audioState.isBuffering
+    val isPaused = audioState.isPaused
+    val isActive = audioState.isActive
 
     Row(
         modifier = modifier,
@@ -93,11 +93,11 @@ fun AyahAudioControls(
             FilledIconButton(
                 onClick = {
                     if (!isAudioAvailable) return@FilledIconButton
-                    when (audioState) {
-                        is AudioState.Playing -> onPause()
-                        is AudioState.Paused -> onResume()
-                        is AudioState.Buffering -> onPause()
-                        is AudioState.Idle, is AudioState.Error -> onPlay(audioUrl!!)
+                    when {
+                        audioState.isPlaying -> onPause()
+                        audioState.isPaused -> onResume()
+                        audioState.isBuffering -> onPause()
+                        else -> onPlay(audioUrl)
                     }
                 },
                 enabled = isAudioAvailable,
@@ -111,29 +111,33 @@ fun AyahAudioControls(
                 modifier = Modifier.size(44.dp)
             ) {
                 AnimatedContent(
-                    targetState = audioState,
+                    targetState = when {
+                        isBuffering -> 1
+                        isPlaying -> 2
+                        else -> 3
+                    },
                     transitionSpec = {
                         (scaleIn(tween(200)) + fadeIn(tween(200))) togetherWith
                                 (scaleOut(tween(200)) + fadeOut(tween(200)))
                     },
                     label = "AudioPlayPauseIconTransition"
-                ) { state ->
-                    when (state) {
-                        is AudioState.Buffering -> {
+                ) { stateKey ->
+                    when (stateKey) {
+                        1 -> {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
                                 strokeWidth = 2.5.dp,
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
-                        is AudioState.Playing -> {
+                        2 -> {
                             Icon(
                                 painter = painterResource(Res.drawable.ic_pause),
                                 contentDescription = "Pause Audio Recitation",
                                 modifier = Modifier.size(22.dp)
                             )
                         }
-                        is AudioState.Paused, is AudioState.Idle, is AudioState.Error -> {
+                        else -> {
                             Icon(
                                 painter = painterResource(Res.drawable.ic_play_arrow),
                                 contentDescription = "Play Audio Recitation",
