@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uncaan.mengaji.core.audio.AudioState
+import com.uncaan.mengaji.core.ui.KeepScreenOn
 import com.uncaan.mengaji.feature.quran.presentation.component.AyahCard
 import com.uncaan.mengaji.feature.quran.presentation.component.EditionSelectorRow
 import com.uncaan.mengaji.feature.quran.presentation.component.QuranEmptyState
@@ -77,12 +78,15 @@ fun AlQuranScreen(
         }
     }
 
+    // Keep screen awake while recitation audio is actively playing
+    KeepScreenOn(enabled = audioState.isPlaying)
+
     // Display error snackbar when audio playback fails
-    LaunchedEffect(audioState) {
-        if (audioState is AudioState.Error) {
-            val errorMessage = (audioState as AudioState.Error).message
+    LaunchedEffect(audioState.error) {
+        val errorMessage = audioState.error
+        if (!errorMessage.isNullOrBlank()) {
             snackbarHostState.showSnackbar(
-                message = errorMessage.ifBlank { "Failed to play recitation audio" }
+                message = errorMessage
             )
         }
     }
