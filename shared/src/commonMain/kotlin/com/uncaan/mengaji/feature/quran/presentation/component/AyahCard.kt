@@ -59,15 +59,15 @@ fun AyahCard(
     ayah: Ayah,
     translationEdition: String,
     recitationEdition: String,
-    audioState: AudioState = AudioState.Idle,
+    audioState: AudioState = AudioState.IDLE,
     onPlay: (String) -> Unit = {},
     onPause: () -> Unit = {},
     onResume: () -> Unit = {},
     onStop: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val isPlaying = audioState is AudioState.Playing
-    val isBuffering = audioState is AudioState.Buffering
+    val isPlaying = audioState.isPlaying
+    val isBuffering = audioState.isBuffering
     val activeBorderColor by animateColorAsState(
         targetValue = when {
             isPlaying -> MaterialTheme.colorScheme.secondary
