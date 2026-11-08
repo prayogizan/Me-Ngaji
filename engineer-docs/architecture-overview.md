@@ -248,4 +248,36 @@ MeNgaji implements a reactive, gapless recitation queue playback engine and disp
   - **Android (`androidMain`):** Uses `LocalView.current.keepScreenOn = enabled` inside `DisposableEffect(enabled)`, safely restoring previous window state on disposal.
   - **iOS (`iosMain`):** Configures `UIApplication.sharedApplication.idleTimerDisabled = enabled` inside `DisposableEffect(enabled)`, resetting to previous timer configuration on disposal.
 
+---
+
+## 9. Surah/Juz Catalog, Last Read Hero Banner & Quick Jump Scrubber UI Architecture (CMP-604)
+
+MeNgaji implements a multi-modal Quran exploration hub matching Figma Screen 01 (`node-id=1-25`), unifying the 114 Surahs, 30 Juz parts, saved bookmarks, and rapid scrubber navigation:
+
+### 9.1 Static Juz Domain Mapping (`JuzSummary` & `JuzCatalogData`)
+- **Domain Model (`JuzSummary`):** Pure Kotlin data class capturing the 1-indexed Juz ordinal (`1..30`), traditional Arabic script title (`nameArabic`), starting and ending Surah coordinates, and Medina Mushaf page boundaries (`startPageNumber..endPageNumber`).
+- **Static Canonical Repository (`JuzCatalogData`):** Provides an immutable sequence of all 30 Juz covering the complete 604-page Medina Mushaf without gaps. Provides lookup helpers `getJuzByNumber(number: Int)` and `getJuzForPage(pageNumber: Int)`.
+
+### 9.2 Last Read Hero Banner Card (`LastReadHeroCard`)
+- **Visual Design:** High-contrast `#044736` to `#065F46` emerald gradient container with Gold (`#D4AF37` / `#F59E0B`) accent pill badges, right-aligned RTL Uthmani Arabic Surah title via `getQuranArabicTextStyle()`, and an active streak pill (`🔥 5-Day Streak`).
+- **1-Tap Continuation:** Invokes `QuranUiAction.ResumeLastRead(progress)` on click, seamlessly resuming playback and reader focus at the recorded Surah, Ayah, or Mushaf Page in the user's preferred `ReaderMode`.
+
+### 9.3 Unified Search & Direct Verse Lookup
+- **Multi-Field Filtering:** Filters the 114 Surahs in real time against English transliterations, English meanings, and numeric Surah IDs without redundant network requests.
+- **Regex Pattern Detection:** Detects `^\s*(\d{1,3})\s*:\s*(\d{1,3})\s*$` patterns (e.g. `2:255` for Ayat al-Kursi) to instantly surface the `DirectAyahJumpChip` (`"Go to Surah X, Ayah Y →"`).
+
+### 9.4 3-Way Segmented Catalog Tabs (`SegmentedCatalogTabs`)
+- **Segmented Control:** Smoothly toggles between `Surah (114)`, `Juz (30)`, and `Bookmarks (N)` with animated indicator transitions.
+- **Tab Content:**
+  - `SURAH`: LazyColumn of `SurahListItemCard`s featuring Rub el Hizb number badges, revelation type badges (`MECCAN` / `MEDINAN`), verse counts, and RTL Arabic calligraphy titles.
+  - `JUZ`: LazyColumn of `JuzListItemCard`s displaying starting verse spans and page spans.
+  - `BOOKMARKS`: LazyColumn of `BookmarkListItemCard`s with quick deletion actions and an elegant `BookmarksEmptyState` fallback.
+
+### 9.5 Quick Jump Scrubber BottomSheet (`QuickJumpBottomSheet`)
+- **Multi-Modal Navigation Scrubber:** ModalBottomSheet with 3 operational modes:
+  1. **Surah & Ayah Picker:** Dropdown selector paired with bounded numeric verse input (`1..selectedSurah.numberOfAyahs`).
+  2. **Mushaf Page Scrubber:** Smooth slider and direct page input across `1..604`, automatically displaying the corresponding Juz context.
+  3. **30-Juz Rapid Grid:** 5x6 grid of Juz chips enabling 1-tap navigation to any Juz starting verse.
+
+
 
