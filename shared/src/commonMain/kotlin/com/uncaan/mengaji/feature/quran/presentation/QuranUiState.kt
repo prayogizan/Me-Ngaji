@@ -1,14 +1,21 @@
 package com.uncaan.mengaji.feature.quran.presentation
 
 import com.uncaan.mengaji.feature.quran.domain.model.Ayah
+import com.uncaan.mengaji.feature.quran.domain.model.AyahBookmark
+import com.uncaan.mengaji.feature.quran.domain.model.JuzCatalogData
+import com.uncaan.mengaji.feature.quran.domain.model.JuzSummary
+import com.uncaan.mengaji.feature.quran.domain.model.LastReadProgress
 import com.uncaan.mengaji.feature.quran.domain.model.QuranEditionPresets
+import com.uncaan.mengaji.feature.quran.domain.model.SurahSummary
+import com.uncaan.mengaji.feature.quran.presentation.model.CatalogTab
+import com.uncaan.mengaji.feature.quran.presentation.model.QuickJumpTab
 
 /**
- * Sealed hierarchy representing all possible UI states for the Al-Quran feature.
+ * Sealed hierarchy representing all possible UI states for single-verse Ayah inspection.
  */
 sealed interface QuranUiState {
 
-    /** Initial state before any Ayah search has been performed. */
+    /** Initial state before any specific Ayah search has been performed. */
     data object Initial : QuranUiState
 
     /** In-flight network request fetching Ayah data. */
@@ -40,6 +47,37 @@ sealed interface QuranUiState {
         val isNetworkError: Boolean = false
     ) : QuranUiState
 }
+
+/**
+ * Immutable UI state model for the Quran Catalog Pane and Quick Jump bottom sheet.
+ *
+ * @property surahs The complete 114-Surah catalog list.
+ * @property filteredSurahs Filtered Surah list matching the active [searchQuery].
+ * @property juzs The 30-Juz catalog list provided by [JuzCatalogData.allJuz].
+ * @property bookmarks The user's persisted bookmarks ordered newest first.
+ * @property lastReadProgress The latest recorded recitation progress, or `null` if none exists.
+ * @property activeTab The active segmented filter tab ([CatalogTab.SURAH], [CatalogTab.JUZ], [CatalogTab.BOOKMARKS]).
+ * @property searchQuery The current catalog filter query string.
+ * @property directJumpTarget Parsed `(surahNumber, ayahNumber)` pair when [searchQuery] matches `surah:ayah` notation.
+ * @property isCatalogLoading True if the 114-Surah catalog is actively being fetched.
+ * @property catalogError Error message if loading the Surah catalog fails.
+ * @property isQuickJumpSheetVisible True if the Quick Jump Scrubber bottom sheet is currently displayed.
+ * @property activeQuickJumpTab The active sub-mode tab within the Quick Jump bottom sheet.
+ */
+data class QuranCatalogState(
+    val surahs: List<SurahSummary> = emptyList(),
+    val filteredSurahs: List<SurahSummary> = emptyList(),
+    val juzs: List<JuzSummary> = JuzCatalogData.allJuz,
+    val bookmarks: List<AyahBookmark> = emptyList(),
+    val lastReadProgress: LastReadProgress? = null,
+    val activeTab: CatalogTab = CatalogTab.SURAH,
+    val searchQuery: String = "",
+    val directJumpTarget: Pair<Int, Int>? = null,
+    val isCatalogLoading: Boolean = false,
+    val catalogError: String? = null,
+    val isQuickJumpSheetVisible: Boolean = false,
+    val activeQuickJumpTab: QuickJumpTab = QuickJumpTab.SURAH_AYAH
+)
 
 /**
  * Sealed hierarchy representing user-initiated actions and intents on the Al-Quran screen.
@@ -95,4 +133,81 @@ sealed interface QuranUiAction {
 
     /** Re-executes the last searched Ayah query. */
     data object Retry : QuranUiAction
+
+    // ==========================================
+    // Catalog & Quick Jump Actions (CMP-604)
+    // ==========================================
+
+    /**
+     * Switches the active catalog segmented filter tab.
+     *
+     * @property tab The target [CatalogTab] to display.
+     */
+    data class SelectCatalogTab(val tab: CatalogTab) : QuranUiAction
+
+    /**
+     * Updates the real-time catalog search filter query.
+     *
+     * @property query The text query filtering Surahs or indicating `surah:ayah` jump.
+     */
+    data class UpdateCatalogSearch(val query: String) : QuranUiAction
+
+    /** Clears the catalog search input query. */
+    data object ClearCatalogSearch : QuranUiAction
+
+    /**
+     * Toggles visibility of the Quick Jump Scrubber bottom sheet.
+     *
+     * @property visible True to show the bottom sheet, false to dismiss.
+     */
+    data class SetQuickJumpSheetVisible(val visible: Boolean) : QuranUiAction
+
+    /**
+     * Switches the active mode tab within the Quick Jump bottom sheet.
+     *
+     * @property tab The target [QuickJumpTab] mode.
+     */
+    data class SelectQuickJumpTab(val tab: QuickJumpTab) : QuranUiAction
+
+    /**
+     * Triggers navigation / focus to a specific Surah and Ayah.
+     *
+     * @property surahNumber 1-indexed Surah number (`1..114`).
+     * @property ayahNumber 1-indexed Ayah number within the Surah. Defaults to `1`.
+     */
+    data class JumpToSurah(val surahNumber: Int, val ayahNumber: Int = 1) : QuranUiAction
+
+    /**
+     * Triggers navigation / focus to a specific Medina Mushaf page.
+     *
+     * @property pageNumber 1-indexed page number (`1..604`).
+     */
+    data class JumpToMushafPage(val pageNumber: Int) : QuranUiAction
+
+    /**
+     * Triggers navigation / focus to the beginning of a specific Juz.
+     *
+     * @property juzNumber 1-indexed Juz number (`1..30`).
+     */
+    data class JumpToJuz(val juzNumber: Int) : QuranUiAction
+
+    /**
+     * Resumes recitation from the persisted [LastReadProgress] checkpoint.
+     *
+     * @property progress The saved recitation progress entity.
+     */
+    data class ResumeLastRead(val progress: LastReadProgress) : QuranUiAction
+
+    /**
+     * Removes an existing bookmark from local storage.
+     *
+     * @property bookmark The [AyahBookmark] entity to delete.
+     */
+    data class RemoveBookmark(val bookmark: AyahBookmark) : QuranUiAction
+
+    /** Manually reloads the 114-Surah catalog bypassing cache. */
+    data object RefreshCatalog : QuranUiAction
+
+    /** Returns from single Ayah detail view back to the catalog pane. */
+    data object BackToCatalog : QuranUiAction
 }
