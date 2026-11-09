@@ -32,12 +32,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uncaan.mengaji.core.audio.AudioState
 import com.uncaan.mengaji.core.ui.KeepScreenOn
+import com.uncaan.mengaji.feature.quran.domain.model.ReaderMode
+import com.uncaan.mengaji.feature.quran.presentation.component.AyahActionBottomSheet
 import com.uncaan.mengaji.feature.quran.presentation.component.AyahCard
 import com.uncaan.mengaji.feature.quran.presentation.component.EditionSelectorRow
+import com.uncaan.mengaji.feature.quran.presentation.component.MushafPageReader
+import com.uncaan.mengaji.feature.quran.presentation.component.QuickJumpBottomSheet
 import com.uncaan.mengaji.feature.quran.presentation.component.QuranErrorState
 import com.uncaan.mengaji.feature.quran.presentation.component.QuranLoadingSkeleton
 import com.uncaan.mengaji.feature.quran.presentation.component.QuranSearchBar
+import com.uncaan.mengaji.feature.quran.presentation.component.ReaderTopBar
+import com.uncaan.mengaji.feature.quran.presentation.component.RecitationAudioDock
 import com.uncaan.mengaji.feature.quran.presentation.component.SurahCatalogPane
+import com.uncaan.mengaji.feature.quran.presentation.component.VerseListReader
 import com.uncaan.mengaji.theme.PrimaryGreen
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -67,6 +74,7 @@ fun AlQuranScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val catalogState by viewModel.catalogState.collectAsStateWithLifecycle()
+    val readerState by viewModel.readerState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val selectedTranslation by viewModel.selectedTranslation.collectAsStateWithLifecycle()
     val selectedRecitation by viewModel.selectedRecitation.collectAsStateWithLifecycle()
@@ -74,12 +82,12 @@ fun AlQuranScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Auto-search if deep-link parameters are present and positive
+    // Auto-search and open reader if deep-link parameters are present and positive
     LaunchedEffect(initialSurahNumber, initialAyahNumber) {
         if (initialSurahNumber != null && initialAyahNumber != null &&
             initialSurahNumber > 0 && initialAyahNumber > 0
         ) {
-            viewModel.searchAyah("$initialSurahNumber:$initialAyahNumber")
+            viewModel.onAction(QuranUiAction.OpenReader(initialSurahNumber, initialAyahNumber))
         }
     }
 
@@ -90,8 +98,8 @@ fun AlQuranScreen(
         }
     }
 
-    // Keep screen awake while recitation audio is actively playing
-    KeepScreenOn(enabled = audioState.isPlaying)
+    // Keep screen awake while reader is active or recitation audio is actively playing
+    KeepScreenOn(enabled = readerState.isReaderActive || audioState.isPlaying)
 
     // Display error snackbar when audio playback fails
     LaunchedEffect(audioState.error) {
@@ -110,6 +118,7 @@ fun AlQuranScreen(
         AlQuranContent(
             uiState = uiState,
             catalogState = catalogState,
+            readerState = readerState,
             searchQuery = searchQuery,
             selectedTranslation = selectedTranslation,
             selectedRecitation = selectedRecitation,
@@ -123,12 +132,13 @@ fun AlQuranScreen(
 /**
  * Stateless content composable for the Al-Quran screen.
  *
- * Displays the comprehensive [SurahCatalogPane] when no specific Ayah is active,
- * or switches to verse inspection ([AyahCard], [QuranLoadingSkeleton], [QuranErrorState])
- * with a quick shortcut to navigate back to the catalog.
+ * Renders the Dual-Mode Recitation Reader ([ReaderTopBar], [VerseListReader], [MushafPageReader],
+ * [RecitationAudioDock], [AyahActionBottomSheet]) when active, or displays the comprehensive
+ * [SurahCatalogPane] and single-verse exploration view.
  *
  * @param uiState Current immutable UI state for verse inspection.
  * @param catalogState Current catalog exploration state for Surahs, Juzs, and Bookmarks.
+ * @param readerState Current dual-mode recitation reader state.
  * @param searchQuery Current search query text.
  * @param selectedTranslation Currently selected translation edition identifier.
  * @param selectedRecitation Currently selected audio recitation edition identifier.
@@ -137,6 +147,7 @@ fun AlQuranScreen(
  * @param modifier The layout modifier for the container.
  * @see QuranUiState
  * @see QuranCatalogState
+ * @see QuranReaderState
  * @see QuranUiAction
  * @see AudioState
  */
@@ -144,6 +155,7 @@ fun AlQuranScreen(
 fun AlQuranContent(
     uiState: QuranUiState,
     catalogState: QuranCatalogState,
+    readerState: QuranReaderState,
     searchQuery: String,
     selectedTranslation: String,
     selectedRecitation: String,
@@ -151,7 +163,97 @@ fun AlQuranContent(
     onAction: (QuranUiAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (uiState is QuranUiState.Initial) {
+    if (readerState.isReaderActive) {
+        // Dual-Mode Quran Recitation Reader View (CMP-605)
+        Box(modifier = modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Top Navigation & Mode Switcher Bar
+                ReaderTopBar(
+                    readerState = readerState,
+                    onAction = onAction
+                )
+
+                // Reader Canvas Area
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    when (readerState.readerMode) {
+                        ReaderMode.VERSE_LIST -> {
+                            if (readerState.isReaderLoading && readerState.surahDetail == null) {
+                                QuranLoadingSkeleton(modifier = Modifier.padding(16.dp))
+                            } else if (readerState.surahDetail != null) {
+                                VerseListReader(
+                                    readerState = readerState,
+                                    audioState = audioState,
+                                    onAction = onAction
+                                )
+                            } else if (readerState.readerError != null) {
+                                QuranErrorState(
+                                    message = readerState.readerError,
+                                    isNotFoundError = false,
+                                    isNetworkError = true,
+                                    onRetry = {
+                                        onAction(
+                                            QuranUiAction.OpenReader(
+                                                surahNumber = readerState.currentSurahNumber,
+                                                ayahNumber = readerState.currentAyahNumber
+                                            )
+                                        )
+                                    },
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                        }
+                        ReaderMode.MUSHAF_PAGE -> {
+                            MushafPageReader(
+                                readerState = readerState,
+                                onAction = onAction
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Floating Thumb-Zone Audio Transport Dock
+            RecitationAudioDock(
+                readerState = readerState,
+                audioState = audioState,
+                onAction = onAction,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+
+            // Contextual Ayah Action Bottom Sheet
+            if (readerState.actionSheetAyah != null) {
+                AyahActionBottomSheet(
+                    ayah = readerState.actionSheetAyah,
+                    onAction = onAction,
+                    onDismiss = { onAction(QuranUiAction.DismissAyahActionSheet) }
+                )
+            }
+
+            // Quick Jump Scrubber Bottom Sheet
+            QuickJumpBottomSheet(
+                isVisible = catalogState.isQuickJumpSheetVisible,
+                surahs = catalogState.surahs,
+                activeTab = catalogState.activeQuickJumpTab,
+                onSelectTab = { onAction(QuranUiAction.SelectQuickJumpTab(it)) },
+                onJumpToAyah = { surah, ayah ->
+                    onAction(QuranUiAction.JumpToSurah(surah, ayah))
+                },
+                onJumpToPage = { page ->
+                    onAction(QuranUiAction.JumpToMushafPage(page))
+                },
+                onJumpToJuz = { juz ->
+                    onAction(QuranUiAction.JumpToJuz(juz))
+                },
+                onDismiss = {
+                    onAction(QuranUiAction.SetQuickJumpSheetVisible(false))
+                }
+            )
+        }
+    } else if (uiState is QuranUiState.Initial) {
         // Primary Screen: Surah / Juz / Bookmarks Catalog Pane
         SurahCatalogPane(
             catalogState = catalogState,
@@ -248,6 +350,7 @@ private fun AlQuranContentPreview() {
         AlQuranContent(
             uiState = QuranUiState.Initial,
             catalogState = QuranCatalogState(),
+            readerState = QuranReaderState(),
             searchQuery = "",
             selectedTranslation = "en.sahih",
             selectedRecitation = "ar.alafasy",
