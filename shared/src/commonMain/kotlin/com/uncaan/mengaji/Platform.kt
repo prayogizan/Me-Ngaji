@@ -20,3 +20,10 @@ interface Platform {
  * @return The active platform descriptor instance.
  */
 expect fun getPlatform(): Platform
+
+/**
+ * Retrieves the current system epoch timestamp in milliseconds across supported platforms.
+ *
+ * @return Current Unix epoch time in milliseconds.
+ */
+expect fun currentTimeMillis(): Long
