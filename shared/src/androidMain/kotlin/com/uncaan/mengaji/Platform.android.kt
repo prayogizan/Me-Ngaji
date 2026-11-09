@@ -19,3 +19,10 @@ class AndroidPlatform : Platform {
  * @return The [AndroidPlatform] instance.
  */
 actual fun getPlatform(): Platform = AndroidPlatform()
+
+/**
+ * Android actual implementation returning epoch milliseconds via [System.currentTimeMillis].
+ *
+ * @return Current Unix epoch time in milliseconds.
+ */
+actual fun currentTimeMillis(): Long = System.currentTimeMillis()

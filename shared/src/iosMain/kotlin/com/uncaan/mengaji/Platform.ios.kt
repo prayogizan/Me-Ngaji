@@ -1,5 +1,7 @@
 package com.uncaan.mengaji
 
+import platform.Foundation.NSDate
+import platform.Foundation.timeIntervalSince1970
 import platform.UIKit.UIDevice
 
 /**
@@ -19,3 +21,10 @@ class IOSPlatform: Platform {
  * @return The [IOSPlatform] instance.
  */
 actual fun getPlatform(): Platform = IOSPlatform()
+
+/**
+ * iOS actual implementation returning epoch milliseconds via Foundation's [NSDate].
+ *
+ * @return Current Unix epoch time in milliseconds.
+ */
+actual fun currentTimeMillis(): Long = (NSDate().timeIntervalSince1970 * 1000.0).toLong()

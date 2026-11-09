@@ -5,7 +5,10 @@ import com.uncaan.mengaji.feature.quran.domain.model.AyahBookmark
 import com.uncaan.mengaji.feature.quran.domain.model.JuzCatalogData
 import com.uncaan.mengaji.feature.quran.domain.model.JuzSummary
 import com.uncaan.mengaji.feature.quran.domain.model.LastReadProgress
+import com.uncaan.mengaji.feature.quran.domain.model.MushafPage
 import com.uncaan.mengaji.feature.quran.domain.model.QuranEditionPresets
+import com.uncaan.mengaji.feature.quran.domain.model.ReaderMode
+import com.uncaan.mengaji.feature.quran.domain.model.SurahDetail
 import com.uncaan.mengaji.feature.quran.domain.model.SurahSummary
 import com.uncaan.mengaji.feature.quran.presentation.model.CatalogTab
 import com.uncaan.mengaji.feature.quran.presentation.model.QuickJumpTab
@@ -77,6 +80,42 @@ data class QuranCatalogState(
     val catalogError: String? = null,
     val isQuickJumpSheetVisible: Boolean = false,
     val activeQuickJumpTab: QuickJumpTab = QuickJumpTab.SURAH_AYAH
+)
+
+/**
+ * Immutable UI state model for the Dual-Mode Recitation Reader (CMP-605).
+ *
+ * Encapsulates the active reader presentation mode, loaded Surah and Mushaf page entities,
+ * active reading coordinates, distraction-free Khushu' mode status, and contextual Ayah action sheet state.
+ *
+ * @property isReaderActive True if the reader interface is displayed, false when exploring the catalog.
+ * @property readerMode The active presentation layout ([ReaderMode.VERSE_LIST] or [ReaderMode.MUSHAF_PAGE]).
+ * @property surahDetail The loaded Surah entity with full verses, or `null` if loading/not loaded.
+ * @property mushafPage The loaded Medina Mushaf page entity (`1..604`), or `null` if loading/not loaded.
+ * @property currentSurahNumber The 1-indexed active Surah ordinal (`1..114`). Defaults to `1`.
+ * @property currentAyahNumber The 1-indexed active Ayah ordinal within the Surah. Defaults to `1`.
+ * @property currentPageNumber The 1-indexed active Medina Mushaf page ordinal (`1..604`). Defaults to `1`.
+ * @property isKhushuMode True if distraction-free immersive reading mode is toggled (hides top bar and bottom dock).
+ * @property actionSheetAyah The [Ayah] currently selected for contextual operations in [AyahActionBottomSheet], or `null` if closed.
+ * @property isReaderLoading True if Surah detail or Mushaf page data is actively being fetched.
+ * @property readerError Error message if loading the Surah or Mushaf page fails, or `null`.
+ * @see ReaderMode
+ * @see SurahDetail
+ * @see MushafPage
+ * @see Ayah
+ */
+data class QuranReaderState(
+    val isReaderActive: Boolean = false,
+    val readerMode: ReaderMode = ReaderMode.VERSE_LIST,
+    val surahDetail: SurahDetail? = null,
+    val mushafPage: MushafPage? = null,
+    val currentSurahNumber: Int = 1,
+    val currentAyahNumber: Int = 1,
+    val currentPageNumber: Int = 1,
+    val isKhushuMode: Boolean = false,
+    val actionSheetAyah: Ayah? = null,
+    val isReaderLoading: Boolean = false,
+    val readerError: String? = null
 )
 
 /**
@@ -208,6 +247,96 @@ sealed interface QuranUiAction {
     /** Manually reloads the 114-Surah catalog bypassing cache. */
     data object RefreshCatalog : QuranUiAction
 
-    /** Returns from single Ayah detail view back to the catalog pane. */
+    /** Returns from single Ayah detail view or reader mode back to the catalog pane. */
     data object BackToCatalog : QuranUiAction
+
+    // ==========================================
+    // Reader & Recitation Actions (CMP-605)
+    // ==========================================
+
+    /**
+     * Activates the reader view for a specific Surah, Ayah, and presentation mode.
+     *
+     * @property surahNumber 1-indexed Surah number (`1..114`).
+     * @property ayahNumber 1-indexed Ayah number within the Surah. Defaults to `1`.
+     * @property mode Preferred initial reader mode. Defaults to [ReaderMode.VERSE_LIST].
+     */
+    data class OpenReader(
+        val surahNumber: Int,
+        val ayahNumber: Int = 1,
+        val mode: ReaderMode = ReaderMode.VERSE_LIST
+    ) : QuranUiAction
+
+    /**
+     * Switches between Verse-by-Verse List and RTL Mushaf Page presentation modes.
+     *
+     * @property mode The target [ReaderMode] layout.
+     */
+    data class SwitchReaderMode(val mode: ReaderMode) : QuranUiAction
+
+    /**
+     * Loads and displays a specific Medina Mushaf page.
+     *
+     * @property pageNumber 1-indexed page number (`1..604`).
+     */
+    data class LoadMushafPage(val pageNumber: Int) : QuranUiAction
+
+    /**
+     * Toggles distraction-free Khushu' immersive mode on or off.
+     */
+    data object ToggleKhushuMode : QuranUiAction
+
+    /**
+     * Opens the Ayah action bottom sheet for the specified verse.
+     *
+     * @property ayah The target [Ayah] domain entity.
+     */
+    data class ShowAyahActionSheet(val ayah: Ayah) : QuranUiAction
+
+    /** Dismisses the active Ayah action bottom sheet. */
+    data object DismissAyahActionSheet : QuranUiAction
+
+    /**
+     * Begins continuous recitation playback from the specified verse through the end of the Surah.
+     *
+     * @property ayah The starting [Ayah] entity.
+     */
+    data class PlayFromAyah(val ayah: Ayah) : QuranUiAction
+
+    /**
+     * Sets repeat mode to single-verse looping and begins playback for the specified verse.
+     *
+     * @property ayah The [Ayah] entity to loop.
+     */
+    data class LoopAyah(val ayah: Ayah) : QuranUiAction
+
+    /**
+     * Manually records and persists recitation progress at the specified verse checkpoint.
+     *
+     * @property ayah The [Ayah] checkpoint to persist.
+     */
+    data class SaveManualLastRead(val ayah: Ayah) : QuranUiAction
+
+    /**
+     * Toggles the bookmark status for the specified verse.
+     *
+     * @property ayah The [Ayah] to bookmark or unbookmark.
+     */
+    data class ToggleBookmarkForAyah(val ayah: Ayah) : QuranUiAction
+
+    /**
+     * Configures the audio recitation playback speed.
+     *
+     * @property speed The playback speed multiplier (`0.75f`, `1.0f`, `1.25f`, `1.5f`).
+     */
+    data class SetPlaybackSpeed(val speed: Float) : QuranUiAction
+
+    /** Cycles through available audio repeat modes: NONE -> REPEAT_AYAH -> REPEAT_SURAH -> NONE. */
+    data object CycleRepeatMode : QuranUiAction
+
+    /** Skips audio playback to the next verse in the active queue. */
+    data object SkipToNextVerse : QuranUiAction
+
+    /** Skips audio playback to the previous verse in the active queue. */
+    data object SkipToPreviousVerse : QuranUiAction
 }

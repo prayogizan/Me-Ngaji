@@ -279,5 +279,42 @@ MeNgaji implements a multi-modal Quran exploration hub matching Figma Screen 01 
   2. **Mushaf Page Scrubber:** Smooth slider and direct page input across `1..604`, automatically displaying the corresponding Juz context.
   3. **30-Juz Rapid Grid:** 5x6 grid of Juz chips enabling 1-tap navigation to any Juz starting verse.
 
+---
+
+## 10. Dual-Mode Quran Recitation Reader, RTL Mushaf Pager & Audio Dock Architecture (CMP-605)
+
+MeNgaji implements an adaptive dual-mode recitation reading environment matching Figma Screen 02 (`node-id=1-91`) and Screen 03 (`node-id=1-155`), unifying verse-by-verse analytical study, authentic 604-page Medina Mushaf pagination, thumb-zone playback ergonomics, and distraction-free *Khushu'* focus:
+
+### 10.1 Dual-Mode Reader Presentation (`ReaderMode`)
+- **`VERSE_LIST` (Verse-by-Verse Study Mode):**
+  - Displays ornamental calligraphy header with Surah metadata, English translation, and revelation badges.
+  - Enforces the canonical 3-way Bismillah rule:
+    1. **Surah 9 (*At-Tawbah*):** Never render ornamental Bismillah header.
+    2. **Surah 1 (*Al-Fatihah*):** Ayah 1 is the Bismillah itself (`بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ ۝١`); rendered as Ayah 1 without duplicate header banner.
+    3. **Surahs 2..8 and 10..114:** Pre-pended API Bismillah prefixes are stripped from Ayah 1, rendering the dedicated ornamental Bismillah banner above Ayah 1.
+  - Active reciting Ayah karaoke highlighting: `2.dp` Gold border (`#F59E0B`), warm cream background tint (`#FFFBEB` Light / `#0A2E24` Dark), and `🔊 RECITING` badge.
+  - Auto-scroll: Smooth scroll animation (`lazyListState.animateScrollToItem`) tracking active audio track transitions.
+  - Recitation progress persistence: Debounced (`800ms`) scroll tracking automatically saves `LastReadProgress` checkpoints.
+- **`MUSHAF_PAGE` (Authentic 604-Page Medina Mushaf Pager):**
+  - Paginated across pages `1..604` using Compose `HorizontalPager(state = pagerState, reverseLayout = true)` wrapped in `CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl)` for natural Arabic left-to-right swiping ($N \to N+1$).
+  - Double-bordered illuminated frame on authentic cream `#FFFDF7` (`#0A2E24` Dark) paper canvas.
+  - Inline chapter headers rendered when a new Surah commences on that page.
+  - Flowing RTL Uthmani text with embedded end-of-ayah calligraphy medallions (`۝`).
+  - Single tap toggles distraction-free **Immersive *Khushu'* Mode**, hiding the top bar and audio dock with smooth slide/fade animations.
+- **Bidirectional Coordinate Preservation:** Seamlessly preserves user reading position when switching modes (`surahNumber:ayahNumber` in `VERSE_LIST` $\longleftrightarrow$ `pageNumber` in `MUSHAF_PAGE`).
+
+### 10.2 Floating Thumb-Zone Audio Transport Dock (`RecitationAudioDock`)
+- Positioned in the bottom thumb zone with an elevated `#044736` deep emerald rounded pill container.
+- Real-time queue progress indicator, active Surah/Ayah coordinates, and Qari metadata.
+- Integrated controls: playback speed selector (`0.75x`, `1.0x`, `1.25x`, `1.5x`), repeat mode cycle chip (`NONE`, `REPEAT_AYAH`, `REPEAT_SURAH`), previous track, play/pause toggle with buffering spinner, and next track.
+
+### 10.3 Contextual Ayah Action Sheet (`AyahActionBottomSheet`)
+- Triggered by `•••` action buttons on verse cards or by tapping/long-pressing verses in Mushaf mode.
+- Contextual actions: `▶ Play from Here`, `🔁 Loop Ayah (Hifz)`, `📌 Mark as Last Read`, `★ Bookmark`, and `📤 Copy / Share` formatted verses to the system clipboard.
+
+### 10.4 Display Sleep Awareness (`KeepScreenOn`)
+- `KeepScreenOn(enabled = readerState.isReaderActive || audioState.isPlaying)` prevents screen dimming or timeout during active Quran study and audio recitation sessions.
+
+
 
 
