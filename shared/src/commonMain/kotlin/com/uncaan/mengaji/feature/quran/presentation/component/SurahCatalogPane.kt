@@ -42,6 +42,9 @@ import com.uncaan.mengaji.theme.PrimaryGreen
  * @param catalogState The current immutable [QuranCatalogState] emitted by the ViewModel.
  * @param onAction Callback to dispatch [QuranUiAction] intents to the ViewModel.
  * @param modifier Layout modifier applied to the pane container.
+ * @param activeSurahNumber Optional 1-indexed active Surah number to highlight in split-pane mode.
+ * @param facingSurahNumber Optional 1-indexed facing Surah number in dual-page spread mode.
+ * @param isSplitPane True if rendered as a master sidebar inside medium/expanded multi-pane layouts.
  * @see QuranCatalogState
  * @see QuranUiAction
  * @see LastReadHeroCard
@@ -52,16 +55,19 @@ import com.uncaan.mengaji.theme.PrimaryGreen
 fun SurahCatalogPane(
     catalogState: QuranCatalogState,
     onAction: (QuranUiAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    activeSurahNumber: Int? = null,
+    facingSurahNumber: Int? = null,
+    isSplitPane: Boolean = false
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = if (isSplitPane) 12.dp else 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Header: Title & Quick Jump Button
+            // Header: Title & Quick Jump / Split-Pane Indicator
             item(key = "header") {
                 Row(
                     modifier = Modifier
@@ -71,32 +77,49 @@ fun SurahCatalogPane(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "MeNgaji • Al-Quran",
+                        text = if (isSplitPane) "Surah & Juz Index" else "MeNgaji • Al-Quran",
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
-                            fontSize = 22.sp
+                            fontSize = if (isSplitPane) 18.sp else 22.sp
                         ),
                         color = PrimaryGreen
                     )
 
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable {
-                                onAction(QuranUiAction.SetQuickJumpSheetVisible(true))
-                            }
-                    ) {
-                        Text(
-                            text = "⚡ Quick Jump",
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp
-                            ),
-                            color = PrimaryGreen,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                        )
+                    if (isSplitPane) {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                        ) {
+                            Text(
+                                text = "Split-Pane",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp
+                                ),
+                                color = PrimaryGreen,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    } else {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable {
+                                    onAction(QuranUiAction.SetQuickJumpSheetVisible(true))
+                                }
+                        ) {
+                            Text(
+                                text = "⚡ Quick Jump",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp
+                                ),
+                                color = PrimaryGreen,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -180,8 +203,17 @@ fun SurahCatalogPane(
                             items = catalogState.filteredSurahs,
                             key = { it.number }
                         ) { surah ->
+                            val isActive = isSplitPane && (surah.number == activeSurahNumber || surah.number == facingSurahNumber)
+                            val badgeLabel = if (isSplitPane) {
+                                if (surah.number == activeSurahNumber) "Active"
+                                else if (surah.number == facingSurahNumber) "Facing"
+                                else null
+                            } else null
+
                             SurahListItemCard(
                                 surah = surah,
+                                isActive = isActive,
+                                badgeLabel = badgeLabel,
                                 onClick = {
                                     onAction(QuranUiAction.JumpToSurah(surah.number, 1))
                                 }

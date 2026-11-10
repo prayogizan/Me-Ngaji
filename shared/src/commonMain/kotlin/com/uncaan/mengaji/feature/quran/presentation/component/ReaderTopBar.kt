@@ -47,6 +47,9 @@ import com.uncaan.mengaji.theme.PrimaryGreen
  * @param readerState Current immutable reader state holding chapter, page, and mode metadata.
  * @param onAction Action dispatcher for navigating back, toggling modes, and opening Quick Jump.
  * @param modifier Layout modifier applied to the root container.
+ * @param showBackButton True if the "← Surah" back button should be rendered (for single-pane layouts).
+ * @param showSidebarToggle True if the sidebar expansion toggle button should be rendered (for multi-pane layouts).
+ * @param isSidebarVisible True if the master catalog sidebar is currently expanded.
  * @see QuranReaderState
  * @see QuranUiAction
  * @see ReaderMode
@@ -55,7 +58,10 @@ import com.uncaan.mengaji.theme.PrimaryGreen
 fun ReaderTopBar(
     readerState: QuranReaderState,
     onAction: (QuranUiAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showBackButton: Boolean = true,
+    showSidebarToggle: Boolean = false,
+    isSidebarVisible: Boolean = true
 ) {
     AnimatedVisibility(
         visible = !readerState.isKhushuMode,
@@ -79,24 +85,46 @@ fun ReaderTopBar(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Back to Catalog Navigation Button
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                        modifier = Modifier.clickable { onAction(QuranUiAction.BackToCatalog) }
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    // Navigation Leading Action: Back to Catalog or Toggle Master Sidebar
+                    if (showSidebarToggle) {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                            modifier = Modifier.clickable { onAction(QuranUiAction.ToggleCatalogSidebar) }
                         ) {
-                            Text(
-                                text = "← Surah",
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 12.sp
-                                ),
-                                color = PrimaryGreen
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = if (isSidebarVisible) "⫷ Index" else "⫸ Index",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 12.sp
+                                    ),
+                                    color = PrimaryGreen
+                                )
+                            }
+                        }
+                    } else if (showBackButton) {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                            modifier = Modifier.clickable { onAction(QuranUiAction.BackToCatalog) }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "← Surah",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 12.sp
+                                    ),
+                                    color = PrimaryGreen
+                                )
+                            }
                         }
                     }
 

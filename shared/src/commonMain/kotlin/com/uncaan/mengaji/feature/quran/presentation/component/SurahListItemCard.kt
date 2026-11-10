@@ -1,5 +1,6 @@
 package com.uncaan.mengaji.feature.quran.presentation.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import com.uncaan.mengaji.feature.quran.domain.model.RevelationType
 import com.uncaan.mengaji.feature.quran.domain.model.SurahSummary
 import com.uncaan.mengaji.theme.MeNgajiTheme
 import com.uncaan.mengaji.theme.PrimaryGreen
+import com.uncaan.mengaji.theme.SecondaryGold
 import com.uncaan.mengaji.theme.getQuranArabicTextStyle
 
 /**
@@ -38,24 +40,34 @@ import com.uncaan.mengaji.theme.getQuranArabicTextStyle
  *
  * Designed per Figma Screen 01 specs (`node-id=1-55`), featuring an 8-point badge,
  * English name with revelation summary, and an authentic RTL Arabic calligraphy title.
+ * In split-pane layouts (Figma node `1:224`), supports [isActive] gold borders and [badgeLabel].
  *
  * @param surah The [SurahSummary] domain model to render.
  * @param onClick Callback triggered when the card is tapped.
  * @param modifier Layout modifier applied to the card container.
+ * @param isActive True if this Surah is currently open/facing in the detail pane.
+ * @param badgeLabel Optional status badge text (e.g., "Active", "Facing").
  * @see SurahSummary
  */
 @Composable
 fun SurahListItemCard(
     surah: SurahSummary,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isActive: Boolean = false,
+    badgeLabel: String? = null
 ) {
     Card(
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = if (isActive) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
+            } else {
+                MaterialTheme.colorScheme.surface
+            }
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = if (isActive) BorderStroke(1.5.dp, SecondaryGold) else null,
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isActive) 2.dp else 1.dp),
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
@@ -70,7 +82,7 @@ fun SurahListItemCard(
             // Left: Surah Number Badge
             Surface(
                 shape = RoundedCornerShape(10.dp),
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                color = if (isActive) SecondaryGold.copy(alpha = 0.25f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
                 modifier = Modifier.size(40.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -80,7 +92,7 @@ fun SurahListItemCard(
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp
                         ),
-                        color = PrimaryGreen
+                        color = if (isActive) PrimaryGreen else PrimaryGreen
                     )
                 }
             }
@@ -89,16 +101,42 @@ fun SurahListItemCard(
 
             // Center: English Title & Revelation Info
             Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = surah.englishName,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    if (!badgeLabel.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = SecondaryGold.copy(alpha = 0.25f)
+                        ) {
+                            Text(
+                                text = badgeLabel,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = PrimaryGreen,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
+                val subtitle = buildString {
+                    append(surah.englishNameTranslation)
+                    append(" • ")
+                    append("${surah.numberOfAyahs} Ayahs")
+                    append(" • ")
+                    append(surah.revelationType.name)
+                }
                 Text(
-                    text = surah.englishName,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = "${surah.englishNameTranslation} • ${surah.numberOfAyahs} Ayahs • ${surah.revelationType.name}",
+                    text = subtitle,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontSize = 11.sp
                     ),

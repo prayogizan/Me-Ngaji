@@ -315,6 +315,44 @@ MeNgaji implements an adaptive dual-mode recitation reading environment matching
 ### 10.4 Display Sleep Awareness (`KeepScreenOn`)
 - `KeepScreenOn(enabled = readerState.isReaderActive || audioState.isPlaying)` prevents screen dimming or timeout during active Quran study and audio recitation sessions.
 
+---
+
+## 11. Multi-Factor Adaptive Layouts & Navigation Shell Architecture (CMP-606)
+
+MeNgaji implements a multi-factor adaptive layout architecture matching Figma Screen 04 (`node-id=1-200`), delivering ergonomic usability across smartphones, foldables, tablets, and desktop displays:
+
+### 11.1 Window Size Classification (`MeNgajiWindowWidthClass`)
+- **Classifier (`AdaptiveWindowSize.kt`):** Maps viewport horizontal dimension to canonical breakpoints:
+  - `COMPACT` (`< 600.dp`): Handheld smartphones in portrait orientation.
+  - `MEDIUM` (`600.dp..839.dp`): Unfolded foldables, small tablets, and landscape smartphones.
+  - `EXPANDED` (`>= 840.dp`): Large tablets, desktops, and large foldable displays.
+- **Ambient Propagation:** Evaluated via pure CMP `rememberWindowWidthClass(maxWidth)` and distributed through `LocalWindowWidthClass` composition local.
+
+### 11.2 Adaptive Navigation Shell (`MeNgajiNavigationRail`)
+- **Compact Viewports (`< 600.dp`):** Employs standard `MeNgajiBottomBar` and top app bar.
+- **Medium & Expanded Viewports (`>= 600.dp`):** Docks an 80.dp vertical `MeNgajiNavigationRail` on the start edge with app branding and tab selection, maximizing vertical reading height.
+- **Distraction-Free Immersion:** Automatically conceals navigation chrome during *Khushu'* mode.
+
+### 11.3 Split-Pane Master-Detail Layout (`MEDIUM`)
+- **Two-Pane Split:**
+  - Left Pane (`35%` width, min `280.dp`): `SurahCatalogPane` in split-pane mode with active Surah highlighted.
+  - Hinge-Safe Gutter (`16.dp`): Prevents UI elements from being bisected by foldable center creases.
+  - Right Pane (`65%` width): Active `VerseListReader` or single-page `MushafPageReader`.
+- **Non-Blank Detail Guarantee:** Automatically initializes with `lastReadProgress` (or Surah 1 *Al-Fatihah*) so the detail pane is never blank on initial open.
+
+### 11.4 Authentic Dual-Page RTL Medina Mushaf Book Spread (`EXPANDED`)
+- **Dual-Leaf Book Emulation (`DualMushafSpreadReader`):**
+  - **Right Leaf:** Odd page $2k + 1 \in [1, 3, \dots, 603]$ (e.g., Page 1 *Al-Fatihah*).
+  - **Left Leaf:** Even facing page $2k + 2 \in [2, 4, \dots, 604]$ (e.g., Page 2 *Al-Baqarah* 1–5).
+  - **Central Spine Shadow & Foldable Hinge Gutter (`20.dp`):** Realistic book spine depth gradient protecting against foldable display crease occlusions.
+- **Collapsible Master Sidebar (`320.dp`):** 1-tap toggling (`⫷ Index` / `⫸ Index`) allows instant navigation across Surahs and Juzs without leaving the dual-page reading canvas.
+- **Wide Recitation Audio Dock (`WideRecitationAudioDock`):** Full-width emerald dock format with active verse coordinates on the left and transport controls on the right.
+
+### 11.5 Bi-directional Coordinate Mapping & Zero State Loss
+- **Spread Coordinate Mapping:** $k = (P - 1) / 2$ guarantees seamless transitions between single-page and dual-spread reading modes.
+- **State Invariance:** Active audio playback streams, reciting Ayah highlighting, and recitation checkpoints are fully preserved across screen rotations, window resizes, and foldable posture shifts.
+
+
 
 
 

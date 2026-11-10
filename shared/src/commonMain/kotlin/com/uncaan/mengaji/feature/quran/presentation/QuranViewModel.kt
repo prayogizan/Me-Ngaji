@@ -26,6 +26,8 @@ import com.uncaan.mengaji.feature.quran.domain.usecase.GetSurahDetailUseCase
 import com.uncaan.mengaji.feature.quran.domain.usecase.GetSurahListUseCase
 import com.uncaan.mengaji.feature.quran.domain.usecase.SaveLastReadUseCase
 import com.uncaan.mengaji.feature.quran.domain.usecase.ToggleBookmarkUseCase
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -230,6 +232,21 @@ class QuranViewModel(
             }
             is QuranUiAction.LoadMushafPage -> {
                 loadMushafPage(action.pageNumber)
+            }
+            is QuranUiAction.LoadMushafSpread -> {
+                loadMushafSpread(action.spreadIndex)
+            }
+            QuranUiAction.ToggleCatalogSidebar -> {
+                _readerState.update { it.copy(isCatalogSidebarVisible = !it.isCatalogSidebarVisible) }
+            }
+            is QuranUiAction.SelectSpreadAyah -> {
+                _readerState.update {
+                    it.copy(
+                        actionSheetAyah = action.ayah,
+                        currentSurahNumber = action.ayah.surahNumber,
+                        currentAyahNumber = action.ayah.numberInSurah
+                    )
+                }
             }
             QuranUiAction.ToggleKhushuMode -> {
                 _readerState.update { it.copy(isKhushuMode = !it.isKhushuMode) }
@@ -594,6 +611,61 @@ class QuranViewModel(
                 }
                 AppResult.Loading -> {
                     _readerState.update { it.copy(isReaderLoading = true) }
+                }
+            }
+        }
+    }
+
+    /**
+     * Loads both the odd right leaf ($2k+1$) and even left leaf ($2k+2$) concurrently
+     * for authentic Medina Mushaf dual-page book spread rendering (CMP-606).
+     *
+     * In the standard Medina Mushaf layout (RTL), an authentic open book displays:
+     * - **Right Page (Odd Leaf):** `2k + 1` (e.g. Page 1, Page 3, ...)
+     * - **Left Page (Even Leaf):** `2k + 2` (e.g. Page 2, Page 4, ...)
+     *
+     * @param spreadIndex 0-indexed spread ordinal (`0..301`) covering all 604 Medina Mushaf pages.
+     */
+    fun loadMushafSpread(spreadIndex: Int) {
+        val useCase = getMushafPageUseCase ?: return
+        val boundedSpread = spreadIndex.coerceIn(0, 301)
+        val pageOdd = boundedSpread * 2 + 1
+        val pageEven = (pageOdd + 1).coerceAtMost(604)
+
+        viewModelScope.launch {
+            _readerState.update {
+                it.copy(
+                    isReaderLoading = true,
+                    isFacingPageLoading = true,
+                    readerError = null
+                )
+            }
+
+            coroutineScope {
+                val rightDeferred = async { useCase(pageOdd, _selectedTranslation.value) }
+                val leftDeferred = async { useCase(pageEven, _selectedTranslation.value) }
+
+                val rightResult = rightDeferred.await()
+                val leftResult = leftDeferred.await()
+
+                val rightPage = (rightResult as? AppResult.Success)?.data
+                val leftPage = (leftResult as? AppResult.Success)?.data
+                val firstAyah = rightPage?.ayahs?.firstOrNull() ?: leftPage?.ayahs?.firstOrNull()
+
+                val errorMessage = (rightResult as? AppResult.Error)?.message
+                    ?: (leftResult as? AppResult.Error)?.message
+
+                _readerState.update {
+                    it.copy(
+                        mushafPage = rightPage ?: it.mushafPage,
+                        facingMushafPage = leftPage ?: it.facingMushafPage,
+                        currentPageNumber = pageOdd,
+                        currentSurahNumber = firstAyah?.surahNumber ?: it.currentSurahNumber,
+                        currentAyahNumber = firstAyah?.numberInSurah ?: it.currentAyahNumber,
+                        isReaderLoading = false,
+                        isFacingPageLoading = false,
+                        readerError = errorMessage
+                    )
                 }
             }
         }

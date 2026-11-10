@@ -91,7 +91,10 @@ data class QuranCatalogState(
  * @property isReaderActive True if the reader interface is displayed, false when exploring the catalog.
  * @property readerMode The active presentation layout ([ReaderMode.VERSE_LIST] or [ReaderMode.MUSHAF_PAGE]).
  * @property surahDetail The loaded Surah entity with full verses, or `null` if loading/not loaded.
- * @property mushafPage The loaded Medina Mushaf page entity (`1..604`), or `null` if loading/not loaded.
+ * @property mushafPage The loaded Medina Mushaf page entity (`1..604`), or `null` if loading/not loaded. On dual spreads, represents the right odd leaf ($2k+1$).
+ * @property facingMushafPage The loaded facing Medina Mushaf page entity (`1..604`) for dual spreads, or `null`. Represents the left even leaf ($2k+2$).
+ * @property isFacingPageLoading True if facing page data is actively buffering in dual-spread mode.
+ * @property isCatalogSidebarVisible True if the master catalog sidebar/drawer is visible on medium and expanded displays.
  * @property currentSurahNumber The 1-indexed active Surah ordinal (`1..114`). Defaults to `1`.
  * @property currentAyahNumber The 1-indexed active Ayah ordinal within the Surah. Defaults to `1`.
  * @property currentPageNumber The 1-indexed active Medina Mushaf page ordinal (`1..604`). Defaults to `1`.
@@ -109,6 +112,9 @@ data class QuranReaderState(
     val readerMode: ReaderMode = ReaderMode.VERSE_LIST,
     val surahDetail: SurahDetail? = null,
     val mushafPage: MushafPage? = null,
+    val facingMushafPage: MushafPage? = null,
+    val isFacingPageLoading: Boolean = false,
+    val isCatalogSidebarVisible: Boolean = true,
     val currentSurahNumber: Int = 1,
     val currentAyahNumber: Int = 1,
     val currentPageNumber: Int = 1,
@@ -280,6 +286,26 @@ sealed interface QuranUiAction {
      * @property pageNumber 1-indexed page number (`1..604`).
      */
     data class LoadMushafPage(val pageNumber: Int) : QuranUiAction
+
+    /**
+     * Loads both the odd right leaf ($2k+1$) and even left leaf ($2k+2$) for an authentic dual-page spread.
+     *
+     * @property spreadIndex 0-indexed Medina Mushaf spread ordinal (`0..301`).
+     */
+    data class LoadMushafSpread(val spreadIndex: Int) : QuranUiAction
+
+    /**
+     * Toggles visibility of the master catalog sidebar/drawer in medium and expanded layouts.
+     */
+    data object ToggleCatalogSidebar : QuranUiAction
+
+    /**
+     * Selects a verse within a dual-page spread, noting whether it originates from the facing page.
+     *
+     * @property ayah The selected [Ayah] entity.
+     * @property isFacingPage True if the verse belongs to the left facing page, false if right page.
+     */
+    data class SelectSpreadAyah(val ayah: Ayah, val isFacingPage: Boolean) : QuranUiAction
 
     /**
      * Toggles distraction-free Khushu' immersive mode on or off.
