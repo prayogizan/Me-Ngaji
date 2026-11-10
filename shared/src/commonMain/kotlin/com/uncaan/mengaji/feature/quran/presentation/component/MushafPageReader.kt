@@ -1,5 +1,6 @@
 package com.uncaan.mengaji.feature.quran.presentation.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -130,6 +131,9 @@ fun MushafPageReader(
  * @param onAyahClicked Callback invoked when a verse in the canvas is selected.
  * @param onToggleKhushu Callback invoked when the canvas background is tapped.
  * @param modifier Layout modifier applied to the canvas frame.
+ * @param headerBadgeText Optional badge text displayed at the top of the canvas (e.g. on dual spreads).
+ * @param highlightGlobalAyahNumber Optional global Ayah number to highlight with active recitation styles.
+ * @param footerText Optional custom footer caption text. Defaults to standard page numbering and Khushu hint.
  */
 @Composable
 fun MushafPageCanvas(
@@ -138,7 +142,10 @@ fun MushafPageCanvas(
     isLoading: Boolean,
     onAyahClicked: (Ayah) -> Unit,
     onToggleKhushu: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    headerBadgeText: String? = null,
+    highlightGlobalAyahNumber: Int? = null,
+    footerText: String? = null
 ) {
     val scrollState = rememberScrollState()
 
@@ -180,6 +187,27 @@ fun MushafPageCanvas(
                         .verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // Optional Top Badge (e.g. "RIGHT PANE • ODD PAGE 1" / "LEFT PANE • EVEN PAGE 2")
+                    if (!headerBadgeText.isNullOrBlank()) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = PrimaryGreen.copy(alpha = 0.12f),
+                            border = BorderStroke(1.dp, SecondaryGold.copy(alpha = 0.6f)),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        ) {
+                            Text(
+                                text = headerBadgeText,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp,
+                                    letterSpacing = 0.5.sp
+                                ),
+                                color = PrimaryGreen,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
                     // Page Top Header: Juz Title (Left) + Hint (Center) + Surah Title (Right)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -194,7 +222,7 @@ fun MushafPageCanvas(
                         )
 
                         Text(
-                            text = "◀ Swipe for Page ${pageNumber + 1} ▶",
+                            text = if (headerBadgeText == null) "◀ Swipe for Page ${pageNumber + 1} ▶" else "Medina Mushaf",
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                             color = Color(0xFF8C7A58)
                         )
@@ -234,8 +262,12 @@ fun MushafPageCanvas(
                         // Flowing continuous Uthmani verses with end medallions
                         ayahs.forEach { ayah ->
                             val cleanText = stripLeadingBismillah(ayah.text, ayah.surahNumber, ayah.numberInSurah)
+                            val isReciting = highlightGlobalAyahNumber != null && ayah.number == highlightGlobalAyahNumber
+
                             Surface(
-                                color = Color.Transparent,
+                                color = if (isReciting) SecondaryGold.copy(alpha = 0.15f) else Color.Transparent,
+                                shape = RoundedCornerShape(8.dp),
+                                border = if (isReciting) BorderStroke(1.5.dp, SecondaryGold) else null,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onAyahClicked(ayah) }
@@ -247,9 +279,11 @@ fun MushafPageCanvas(
                                         fontSize = 22.sp,
                                         lineHeight = 44.sp
                                     ),
-                                    color = Color(0xFF1B1C1B),
+                                    color = if (isReciting) PrimaryGreen else Color(0xFF1B1C1B),
                                     textAlign = TextAlign.Center,
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = if (isReciting) 8.dp else 0.dp, vertical = if (isReciting) 4.dp else 0.dp)
                                 )
                             }
                         }
@@ -259,7 +293,7 @@ fun MushafPageCanvas(
 
                     // Bottom Page Footer
                     Text(
-                        text = "— Page $pageNumber of 604 (Tap canvas to toggle Khushu' immersive mode) —",
+                        text = footerText ?: "— Page $pageNumber of 604 (Tap canvas to toggle Khushu' immersive mode) —",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontSize = 10.sp,
                             color = Color(0xFF7A7060)
