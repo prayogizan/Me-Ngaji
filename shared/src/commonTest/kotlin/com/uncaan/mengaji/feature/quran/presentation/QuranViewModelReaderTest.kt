@@ -47,6 +47,7 @@ private class FakeReaderRepository : QuranRepository {
     var lastRequestedReference: String? = null
     var lastRequestedSurahNumber: Int? = null
     var lastRequestedPageNumber: Int? = null
+    var shouldFailMushafPage: Boolean = false
     var savedProgress: LastReadProgress? = null
     var toggledBookmark: AyahBookmark? = null
 
@@ -130,6 +131,9 @@ private class FakeReaderRepository : QuranRepository {
         translationEdition: String
     ): AppResult<MushafPage> {
         lastRequestedPageNumber = pageNumber
+        if (shouldFailMushafPage) {
+            return AppResult.Error(Exception("Mushaf network failure"), "Failed to load Mushaf page")
+        }
         val pageAyahs = sampleAyahs.filter { it.page == pageNumber }.ifEmpty { sampleAyahs }
         return AppResult.Success(
             MushafPage(
@@ -299,6 +303,28 @@ class QuranViewModelReaderTest {
         assertEquals(ReaderMode.MUSHAF_PAGE, readerState.readerMode)
         assertEquals(42, readerState.currentPageNumber)
         assertEquals(42, fakeRepository.lastRequestedPageNumber)
+        assertNotNull(readerState.mushafPage)
+        assertEquals(42, readerState.mushafPage.pageNumber)
+    }
+
+    @Test
+    fun switchReaderMode_whenMushafNetworkFails_fallsBackToSurahDetailWithoutBlankPage() = runTest(testDispatcher) {
+        advanceUntilIdle()
+
+        viewModel.onAction(QuranUiAction.OpenReader(surahNumber = 2, ayahNumber = 255))
+        advanceUntilIdle()
+
+        fakeRepository.shouldFailMushafPage = true
+        viewModel.onAction(QuranUiAction.SwitchReaderMode(ReaderMode.MUSHAF_PAGE))
+        advanceUntilIdle()
+
+        val readerState = viewModel.readerState.value
+        assertEquals(ReaderMode.MUSHAF_PAGE, readerState.readerMode)
+        assertEquals(42, readerState.currentPageNumber)
+        assertNotNull(readerState.mushafPage)
+        assertEquals(42, readerState.mushafPage.pageNumber)
+        assertTrue(readerState.mushafPage.ayahs.isNotEmpty())
+        assertNull(readerState.readerError)
     }
 
     @Test

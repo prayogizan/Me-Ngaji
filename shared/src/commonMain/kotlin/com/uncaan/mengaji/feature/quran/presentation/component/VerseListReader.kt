@@ -416,9 +416,10 @@ fun VerseListItemCard(
  * Strips prepended Bismillah strings from verse text for Surahs 2..114 (excluding Surah 9).
  */
 fun stripLeadingBismillah(text: String, surahNumber: Int, ayahNumberInSurah: Int): String {
-    if (surahNumber == 1 || surahNumber == 9 || ayahNumberInSurah != 1) return text
+    val cleaned = text.removePrefix("\uFEFF")
+    if (surahNumber == 1 || surahNumber == 9 || ayahNumberInSurah != 1) return cleaned
     val bismillahRegex = Regex("""^بِسْمِ\s+ٱللَّهِ\s+ٱلرَّحْمَٰنِ\s+ٱلرَّحِيمِ\s*|^بِسْمِ\s+ٱللَّهِ\s+ٱلرَّحْمَٰنِ\s+ٱلرَّحِيمِ\s*""")
-    return text.replace(bismillahRegex, "").trimStart()
+    return cleaned.replace(bismillahRegex, "").trimStart()
 }
 
 /**

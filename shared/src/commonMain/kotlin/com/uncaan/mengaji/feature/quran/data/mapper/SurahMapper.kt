@@ -158,7 +158,8 @@ fun List<SurahEditionDto>.toDomain(
  */
 @JvmName("mushafPageEditionsToDomain")
 fun List<MushafPageEditionDto>.toDomain(
-    translationEdition: String = QuranEditionPresets.DEFAULT_TRANSLATION
+    translationEdition: String = QuranEditionPresets.DEFAULT_TRANSLATION,
+    audioEdition: String = QuranEditionPresets.DEFAULT_RECITATION
 ): MushafPage {
     require(isNotEmpty()) { "Mushaf page editions list cannot be empty" }
 
@@ -181,12 +182,14 @@ fun List<MushafPageEditionDto>.toDomain(
         val translationAyah = translationByGlobalNumber[arabicAyah.number]
         val surahMeta = arabicAyah.surah
         val fallbackSurahSummary = surahMeta?.number?.let { surahsByNumber[it] }
+        val resolvedAudioUrl = arabicAyah.audio?.takeIf { it.isNotBlank() }
+            ?: "https://cdn.islamic.network/quran/audio/128/$audioEdition/${arabicAyah.number}.mp3"
 
         Ayah(
             number = arabicAyah.number,
-            text = arabicAyah.text,
+            text = arabicAyah.text.removePrefix("\uFEFF"),
             translation = translationAyah?.text ?: "",
-            audioUrl = arabicAyah.audio,
+            audioUrl = resolvedAudioUrl,
             surahNumber = surahMeta?.number ?: fallbackSurahSummary?.number ?: 0,
             surahName = surahMeta?.englishName ?: fallbackSurahSummary?.englishName ?: "",
             surahArabicName = surahMeta?.name ?: fallbackSurahSummary?.name ?: "",
