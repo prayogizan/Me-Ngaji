@@ -8,6 +8,8 @@ import com.uncaan.mengaji.feature.quran.domain.model.QuranEditionPresets
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 /**
  * Remote API service interface for querying the Al-Quran Cloud REST API v1.
@@ -57,11 +59,11 @@ interface QuranApiService {
 
     /**
      * Queries a Medina Mushaf page (`1..604`) with parallel Uthmani Arabic and translation editions
-     * from `GET /v1/page/{pageNumber}/editions/quran-uthmani,{translationEdition}`.
+     * from `GET /v1/page/{pageNumber}/quran-uthmani` and `GET /v1/page/{pageNumber}/{translationEdition}`.
      *
      * @param pageNumber The 1-indexed Mushaf page number (`1..604`).
      * @param translationEdition The target translation edition identifier. Defaults to [QuranEditionPresets.DEFAULT_TRANSLATION].
-     * @return [MushafPageResponseDto] wrapping the multi-edition Mushaf page arrays.
+     * @return [MushafPageResponseDto] wrapping the combined Mushaf page edition payloads.
      */
     suspend fun getMushafPage(
         pageNumber: Int,
@@ -107,9 +109,34 @@ class QuranApiServiceImpl(
     override suspend fun getMushafPage(
         pageNumber: Int,
         translationEdition: String
-    ): MushafPageResponseDto {
-        return httpClient.get(
-            "page/$pageNumber/editions/quran-uthmani,$translationEdition"
-        ).body()
+    ): MushafPageResponseDto = coroutineScope {
+        val arabicDeferred = async {
+            httpClient.get("page/$pageNumber/quran-uthmani").body<MushafPageResponseDto>()
+        }
+        val translationDeferred = async {
+            val trimmedEdition = translationEdition.trim()
+            if (trimmedEdition.isNotBlank() && trimmedEdition != "quran-uthmani") {
+                runCatching {
+                    httpClient.get("page/$pageNumber/$trimmedEdition").body<MushafPageResponseDto>()
+                }.getOrNull()
+            } else {
+                null
+            }
+        }
+
+        val arabicResponse = arabicDeferred.await()
+        val translationResponse = translationDeferred.await()
+
+        val combinedEditions = buildList {
+            addAll(arabicResponse.data)
+            translationResponse?.data?.forEach { editionDto ->
+                val editionId = editionDto.edition?.identifier
+                if (editionId == null || none { it.edition?.identifier == editionId }) {
+                    add(editionDto)
+                }
+            }
+        }
+
+        arabicResponse.copy(data = combinedEditions)
     }
 }

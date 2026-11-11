@@ -494,6 +494,119 @@ class QuranRepositoryTest {
         assertEquals(1, page.ayahs.size)
         assertEquals("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", page.ayahs[0].text)
         assertEquals("In the name of Allah, the Entirely Merciful, the Especially Merciful.", page.ayahs[0].translation)
+        assertEquals("https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3", page.ayahs[0].audioUrl)
+    }
+
+    @Test
+    fun getMushafPage_singleObjectEditionResponses_mergesArabicAndTranslationCorrectly() = runTest {
+        val arabicSinglePageJson = """
+            {
+              "code": 200,
+              "status": "OK",
+              "data": {
+                "number": 1,
+                "ayahs": [
+                  {
+                    "number": 1,
+                    "text": "\uFEFFبِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+                    "numberInSurah": 1,
+                    "juz": 1,
+                    "page": 1,
+                    "hizbQuarter": 1
+                  }
+                ],
+                "surahs": {
+                  "1": {
+                    "number": 1,
+                    "name": "سُورَةُ ٱلْفَاتِحَةِ",
+                    "englishName": "Al-Faatiha",
+                    "englishNameTranslation": "The Opening",
+                    "revelationType": "Meccan",
+                    "numberOfAyahs": 7
+                  }
+                },
+                "edition": {
+                  "identifier": "quran-uthmani",
+                  "language": "ar",
+                  "name": "Uthmani",
+                  "englishName": "Uthmani",
+                  "format": "text",
+                  "type": "quran"
+                }
+              }
+            }
+        """.trimIndent()
+
+        val translationSinglePageJson = """
+            {
+              "code": 200,
+              "status": "OK",
+              "data": {
+                "number": 1,
+                "ayahs": [
+                  {
+                    "number": 1,
+                    "text": "In the name of Allah, the Entirely Merciful, the Especially Merciful.",
+                    "numberInSurah": 1,
+                    "juz": 1,
+                    "page": 1,
+                    "hizbQuarter": 1
+                  }
+                ],
+                "surahs": {
+                  "1": {
+                    "number": 1,
+                    "name": "سُورَةُ ٱلْفَاتِحَةِ",
+                    "englishName": "Al-Faatiha",
+                    "englishNameTranslation": "The Opening",
+                    "revelationType": "Meccan",
+                    "numberOfAyahs": 7
+                  }
+                },
+                "edition": {
+                  "identifier": "en.sahih",
+                  "language": "en",
+                  "name": "Saheeh International",
+                  "englishName": "Saheeh International",
+                  "format": "text",
+                  "type": "translation"
+                }
+              }
+            }
+        """.trimIndent()
+
+        val mockEngine = MockEngine { request ->
+            val path = request.url.encodedPath
+            val body = if (path.endsWith("/quran-uthmani")) {
+                arabicSinglePageJson
+            } else {
+                translationSinglePageJson
+            }
+            respond(
+                content = body,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val client = HttpClient(mockEngine) {
+            expectSuccess = true
+            defaultRequest { url("https://api.alquran.cloud/v1/") }
+            install(ContentNegotiation) {
+                json(Json { ignoreUnknownKeys = true; isLenient = true })
+            }
+        }
+        val apiService = QuranApiServiceImpl(client)
+        val cache = FakeLocalRecitationCache()
+        val repository = QuranRepositoryImpl(apiService, cache)
+
+        val result = repository.getMushafPage(pageNumber = 1, translationEdition = "en.sahih")
+
+        assertTrue(result is AppResult.Success)
+        val page = result.data
+        assertEquals(1, page.pageNumber)
+        assertEquals(1, page.ayahs.size)
+        assertEquals("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", page.ayahs[0].text)
+        assertEquals("In the name of Allah, the Entirely Merciful, the Especially Merciful.", page.ayahs[0].translation)
     }
 
     @Test

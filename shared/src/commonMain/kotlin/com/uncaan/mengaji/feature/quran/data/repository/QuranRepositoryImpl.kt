@@ -42,6 +42,7 @@ class QuranRepositoryImpl(
 ) : QuranRepository {
 
     private var cachedSurahList: List<SurahSummary>? = null
+    private val cachedMushafPages = mutableMapOf<Pair<Int, String>, MushafPage>()
 
     /**
      * Fetches and maps an Ayah from the remote API into the domain [Ayah] model.
@@ -160,6 +161,11 @@ class QuranRepositoryImpl(
         pageNumber: Int,
         translationEdition: String
     ): AppResult<MushafPage> {
+        val cacheKey = pageNumber to translationEdition
+        cachedMushafPages[cacheKey]?.let { cached ->
+            return AppResult.Success(cached)
+        }
+
         return withContext(ioDispatcher) {
             safeApiCall {
                 apiService.getMushafPage(
@@ -169,7 +175,9 @@ class QuranRepositoryImpl(
             }.map { response ->
                 response.data.toDomain(
                     translationEdition = translationEdition
-                )
+                ).also { domainPage ->
+                    cachedMushafPages[cacheKey] = domainPage
+                }
             }
         }
     }
