@@ -94,11 +94,12 @@ fun VerseListReader(
         }
     }
 
-    // Scroll to initial requested Ayah when reader first opens
-    LaunchedEffect(readerState.currentSurahNumber) {
+    // Scroll to initial requested Ayah when reader first opens or target coordinates change
+    LaunchedEffect(readerState.currentSurahNumber, readerState.currentAyahNumber, ayahs.size) {
         val targetIndex = ayahs.indexOfFirst { it.numberInSurah == readerState.currentAyahNumber }
-        if (targetIndex > 0) {
-            lazyListState.scrollToItem(targetIndex + 1)
+        if (targetIndex >= 0) {
+            val listIndex = if (targetIndex == 0) 0 else targetIndex + 1
+            lazyListState.scrollToItem(listIndex)
         }
     }
 
@@ -139,10 +140,16 @@ fun VerseListReader(
                     (audioState.currentSurahNumber == ayah.surahNumber &&
                         audioState.currentAyahNumberInSurah == ayah.numberInSurah))
 
+            val isDeepLinkHighlighted = !audioState.isPlaying &&
+                readerState.highlightedAyahNumber != null &&
+                ayah.surahNumber == readerState.currentSurahNumber &&
+                ayah.numberInSurah == readerState.highlightedAyahNumber
+
             VerseListItemCard(
                 ayah = ayah,
                 surahNumber = surahDetail.number,
                 isReciting = isCurrentReciting,
+                isHighlighted = isDeepLinkHighlighted,
                 onActionClicked = { onAction(QuranUiAction.ShowAyahActionSheet(ayah)) },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -243,6 +250,7 @@ fun SurahOrnamentalHeader(
  * @param ayah The [Ayah] domain entity to render.
  * @param surahNumber Parent chapter ordinal index (`1..114`).
  * @param isReciting True if this verse is currently being actively played by the audio engine.
+ * @param isHighlighted True if this verse is highlighted via widget deep-link or manual selection. Defaults to `false`.
  * @param onActionClicked Callback dispatched when the `•••` action button is tapped.
  * @param modifier Layout modifier applied to the card.
  */
@@ -251,14 +259,16 @@ fun VerseListItemCard(
     ayah: Ayah,
     surahNumber: Int,
     isReciting: Boolean,
+    isHighlighted: Boolean = false,
     onActionClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isCardActive = isReciting || isHighlighted
     val borderColor by animateColorAsState(
-        targetValue = if (isReciting) SecondaryGold else Color.Transparent,
+        targetValue = if (isCardActive) SecondaryGold else Color.Transparent,
         label = "VerseBorderColor"
     )
-    val containerColor = if (isReciting) {
+    val containerColor = if (isCardActive) {
         MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
     } else {
         MaterialTheme.colorScheme.surface
@@ -268,14 +278,14 @@ fun VerseListItemCard(
         modifier = modifier
             .fillMaxWidth()
             .border(
-                width = if (isReciting) 2.dp else 0.dp,
+                width = if (isCardActive) 2.dp else 0.dp,
                 color = borderColor,
                 shape = RoundedCornerShape(18.dp)
             ),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.elevatedCardColors(containerColor = containerColor),
         elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = if (isReciting) 5.dp else 2.dp
+            defaultElevation = if (isCardActive) 5.dp else 2.dp
         )
     ) {
         Column(
@@ -283,7 +293,7 @@ fun VerseListItemCard(
                 .fillMaxWidth()
                 .padding(18.dp)
         ) {
-            // Verse Header Row: Number Pill + Reciting Badge + Actions Button
+            // Verse Header Row: Number Pill + Reciting/Highlighted Badge + Actions Button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -314,6 +324,22 @@ fun VerseListItemCard(
                         ) {
                             Text(
                                 text = "🔊 RECITING",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = 10.sp
+                                ),
+                                color = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    } else if (isHighlighted) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = SecondaryGold.copy(alpha = 0.2f)
+                        ) {
+                            Text(
+                                text = "📌 TARGET",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.ExtraBold,
                                     fontSize = 10.sp

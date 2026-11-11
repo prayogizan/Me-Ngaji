@@ -176,11 +176,16 @@ MeNgaji leverages Android Jetpack **WorkManager** (`2.10.0`) for battery-conscio
 - **Backoff & Resilience:** Retries transient network failures using `BackoffPolicy.EXPONENTIAL` up to 3 times before gracefully terminating to preserve existing cached verses on the home screen.
 - **Idempotent Scheduling (`DailyAyahWorkScheduler`):** Utilizes `ExistingPeriodicWorkPolicy.KEEP` to safely register the 24-hour job on both application cold start (`MeNgajiApplication.onCreate`) and home screen widget placement (`DailyAyahWidgetReceiver.onEnabled`).
 
-### 6.2 Widget Deep-Link Navigation Architecture (CMP-504)
+### 6.2 Widget Deep-Link Navigation Architecture (CMP-504, CMP-607)
 - **Widget Tap Action:** `DailyAyahWidgetProvider` layouts (Full, Compact, Small) bind container clicks to `createAyahDeepLinkAction(ayah)` producing `actionStartActivity<MainActivity>()` populated with typed `ActionParameters` (`surah_number`, `ayah_number`). Fallback layout retains parameterless launch.
 - **Host Activity Lifecycle (`MainActivity`):** Configured with `android:launchMode="singleTop"` to intercept widget clicks via both `onCreate()` (cold start) and `onNewIntent()` (warm start / app already running) without duplicate Activity instantiation.
 - **Type-Safe Compose Route:** Deep links map to `AlQuranRoute(surahNumber = Int?, ayahNumber = Int?)`. Bottom navigation bar matching leverages `currentDestination.hasRoute(AlQuranRoute::class)` to retain active tab selection state.
-- **Automated Reader Search:** `AlQuranScreen` observes initial deep-link parameters via `LaunchedEffect(initialSurahNumber, initialAyahNumber)` and triggers `QuranViewModel.searchAyah("$surah:$ayah")`.
+- **Automated Reader Transition & Highlighting (CMP-607):** `AlQuranScreen` observes initial deep-link parameters via `LaunchedEffect(initialSurahNumber, initialAyahNumber)`. When `initialSurahNumber` is present, it directly dispatches `QuranUiAction.OpenSurah(surahNumber, scrollToAyah)`:
+  - `QuranViewModel` loads the complete Surah (`GetSurahDetailUseCase`), transitions the reader into active state (`isReaderActive = true`, `readerMode = ReaderMode.VERSE_LIST`), sets `highlightedAyahNumber = scrollToAyah`, and scrolls `LazyListState` directly to the target verse.
+  - `VerseListItemCard` visually highlights the target verse with a `2.dp` Gold border (`SecondaryGold`) and `#044736` primary emerald container tint (`alpha = 0.08f`) displaying a `📌 TARGET` badge even when audio recitation is idle.
+- **In-Screen Back Navigation Interception (`COMPACT` Mode):**
+  - When in `COMPACT (< 600.dp)` mode with an active reader or verse inspection (`isReaderActive == true` or `uiState !is QuranUiState.Initial`), physical Back button presses and predictive back gestures are intercepted by multiplatform `BackHandler` (`core/ui/BackHandler.kt`).
+  - Intercepted back events dispatch `QuranUiAction.CloseReaderToCatalog`, smoothly resetting reader and highlight states and stopping audio playback to return to `SurahCatalogPane` before popping the tab destination. Top-bar back navigation (`ReaderTopBar`) dispatches the identical `CloseReaderToCatalog` action.
 
 ### 6.3 Widget Configuration Activity & Theming Architecture (CMP-505)
 - **Configuration Contract:** `WidgetConfigActivity` is registered with `android:configure="com.uncaan.mengaji.widget.WidgetConfigActivity"` in `daily_ayah_widget_info.xml` and implements the standard Android AppWidget configuration lifecycle:

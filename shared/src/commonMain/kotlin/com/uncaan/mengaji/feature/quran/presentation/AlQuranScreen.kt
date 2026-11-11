@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uncaan.mengaji.core.audio.AudioState
+import com.uncaan.mengaji.core.ui.BackHandler
 import com.uncaan.mengaji.core.ui.FOLDABLE_HINGE_GUTTER
 import com.uncaan.mengaji.core.ui.LocalWindowWidthClass
 import com.uncaan.mengaji.core.ui.MASTER_PANE_EXPANDED_WIDTH
@@ -103,12 +104,24 @@ fun AlQuranScreen(
     val windowWidthClass = LocalWindowWidthClass.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Auto-search and open reader if deep-link parameters are present and positive
+    // Intercept system Back button in COMPACT mode when reader is active or inspecting an Ayah
+    BackHandler(
+        enabled = windowWidthClass == MeNgajiWindowWidthClass.COMPACT &&
+            (readerState.isReaderActive || uiState !is QuranUiState.Initial)
+    ) {
+        viewModel.onAction(QuranUiAction.CloseReaderToCatalog)
+    }
+
+    // Auto-search and open reader if deep-link parameters are present
     LaunchedEffect(initialSurahNumber, initialAyahNumber) {
-        if (initialSurahNumber != null && initialAyahNumber != null &&
-            initialSurahNumber > 0 && initialAyahNumber > 0
-        ) {
-            viewModel.onAction(QuranUiAction.OpenReader(initialSurahNumber, initialAyahNumber))
+        if (initialSurahNumber != null && initialSurahNumber > 0) {
+            val targetAyah = initialAyahNumber?.takeIf { it > 0 } ?: 1
+            viewModel.onAction(
+                QuranUiAction.OpenSurah(
+                    surahNumber = initialSurahNumber,
+                    scrollToAyah = targetAyah
+                )
+            )
         }
     }
 
