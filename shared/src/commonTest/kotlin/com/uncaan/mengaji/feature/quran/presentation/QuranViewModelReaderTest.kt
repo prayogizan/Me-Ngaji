@@ -465,6 +465,44 @@ class QuranViewModelReaderTest {
 
         assertFalse(viewModel.readerState.value.isReaderActive)
         assertFalse(viewModel.readerState.value.isKhushuMode)
+        assertNull(viewModel.readerState.value.highlightedAyahNumber)
+        assertEquals(QuranUiState.Initial, viewModel.uiState.value)
+        assertTrue(fakeAudioPlayer.stopCount > 0)
+    }
+
+    @Test
+    fun openSurah_activatesReaderAndSetsHighlightedAyah() = runTest(testDispatcher) {
+        advanceUntilIdle()
+
+        viewModel.onAction(QuranUiAction.OpenSurah(surahNumber = 2, scrollToAyah = 255))
+        advanceUntilIdle()
+
+        val readerState = viewModel.readerState.value
+        assertTrue(readerState.isReaderActive)
+        assertEquals(2, readerState.currentSurahNumber)
+        assertEquals(255, readerState.currentAyahNumber)
+        assertEquals(255, readerState.highlightedAyahNumber)
+        assertEquals(ReaderMode.VERSE_LIST, readerState.readerMode)
+        assertEquals(2, readerState.surahDetail?.number)
+    }
+
+    @Test
+    fun closeReaderToCatalog_deactivatesReaderAndResetsHighlightedAyah() = runTest(testDispatcher) {
+        advanceUntilIdle()
+
+        viewModel.onAction(QuranUiAction.OpenSurah(surahNumber = 2, scrollToAyah = 255))
+        viewModel.onAction(QuranUiAction.ToggleKhushuMode)
+        advanceUntilIdle()
+        assertTrue(viewModel.readerState.value.isReaderActive)
+        assertEquals(255, viewModel.readerState.value.highlightedAyahNumber)
+
+        viewModel.onAction(QuranUiAction.CloseReaderToCatalog)
+        advanceUntilIdle()
+
+        val readerState = viewModel.readerState.value
+        assertFalse(readerState.isReaderActive)
+        assertFalse(readerState.isKhushuMode)
+        assertNull(readerState.highlightedAyahNumber)
         assertEquals(QuranUiState.Initial, viewModel.uiState.value)
         assertTrue(fakeAudioPlayer.stopCount > 0)
     }
