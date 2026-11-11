@@ -86,11 +86,15 @@ fun MushafPageReader(
         }
     }
 
-    // Load new Mushaf page whenever the user swipes to a new page
-    LaunchedEffect(pagerState) {
+    // Load new Mushaf page whenever the user swipes to a new page or active page data is missing
+    LaunchedEffect(pagerState, readerState.mushafPage?.pageNumber) {
         snapshotFlow { pagerState.currentPage }.collect { index ->
             val pageNumber = index + 1
-            if (readerState.currentPageNumber != pageNumber) {
+            val hasMatchingPage = readerState.mushafPage?.pageNumber == pageNumber ||
+                readerState.facingMushafPage?.pageNumber == pageNumber
+            if (readerState.currentPageNumber != pageNumber ||
+                (!hasMatchingPage && !readerState.isReaderLoading && readerState.readerError == null)
+            ) {
                 onAction(QuranUiAction.LoadMushafPage(pageNumber))
             }
         }
@@ -106,12 +110,19 @@ fun MushafPageReader(
                 .background(MaterialTheme.colorScheme.background)
         ) { pageIndex ->
             val pageNumber = pageIndex + 1
-            val pageData = if (readerState.currentPageNumber == pageNumber) readerState.mushafPage else null
+            val pageData = when {
+                readerState.mushafPage?.pageNumber == pageNumber -> readerState.mushafPage
+                readerState.facingMushafPage?.pageNumber == pageNumber -> readerState.facingMushafPage
+                else -> null
+            }
+            val errorMessage = if (readerState.currentPageNumber == pageNumber) readerState.readerError else null
 
             MushafPageCanvas(
                 pageNumber = pageNumber,
                 pageData = pageData,
-                isLoading = readerState.isReaderLoading && pageData == null,
+                isLoading = pageData == null && (readerState.isReaderLoading || errorMessage == null),
+                errorMessage = errorMessage,
+                onRetry = { onAction(QuranUiAction.LoadMushafPage(pageNumber)) },
                 onAyahClicked = { onAction(QuranUiAction.ShowAyahActionSheet(it)) },
                 onToggleKhushu = { onAction(QuranUiAction.ToggleKhushuMode) },
                 modifier = Modifier
@@ -134,6 +145,8 @@ fun MushafPageReader(
  * @param headerBadgeText Optional badge text displayed at the top of the canvas (e.g. on dual spreads).
  * @param highlightGlobalAyahNumber Optional global Ayah number to highlight with active recitation styles.
  * @param footerText Optional custom footer caption text. Defaults to standard page numbering and Khushu hint.
+ * @param errorMessage Optional error message when loading the Mushaf page fails.
+ * @param onRetry Optional callback to retry loading the Mushaf page when an error occurs.
  */
 @Composable
 fun MushafPageCanvas(
@@ -145,7 +158,9 @@ fun MushafPageCanvas(
     modifier: Modifier = Modifier,
     headerBadgeText: String? = null,
     highlightGlobalAyahNumber: Int? = null,
-    footerText: String? = null
+    footerText: String? = null,
+    errorMessage: String? = null,
+    onRetry: (() -> Unit)? = null
 ) {
     val scrollState = rememberScrollState()
 
@@ -173,14 +188,7 @@ fun MushafPageCanvas(
                 )
                 .padding(12.dp)
         ) {
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = PrimaryGreen)
-                }
-            } else if (pageData != null) {
+            if (pageData != null) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -302,6 +310,49 @@ fun MushafPageCanvas(
                     )
 
                     Spacer(modifier = Modifier.height(100.dp))
+                }
+            } else if (!errorMessage.isNullOrBlank()) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = errorMessage,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.error
+                            ),
+                            textAlign = TextAlign.Center
+                        )
+                        if (onRetry != null) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = PrimaryGreen,
+                                modifier = Modifier.clickable { onRetry() }
+                            ) {
+                                Text(
+                                    text = "Retry Page $pageNumber",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    ),
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            } else if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = PrimaryGreen)
                 }
             }
         }
