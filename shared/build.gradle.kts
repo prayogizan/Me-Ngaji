@@ -73,6 +73,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
+            implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.cio)
             implementation(libs.koin.android)
             implementation(libs.media3.exoplayer)

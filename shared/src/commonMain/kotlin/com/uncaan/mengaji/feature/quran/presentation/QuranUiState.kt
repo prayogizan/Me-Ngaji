@@ -98,6 +98,7 @@ data class QuranCatalogState(
  * @property currentSurahNumber The 1-indexed active Surah ordinal (`1..114`). Defaults to `1`.
  * @property currentAyahNumber The 1-indexed active Ayah ordinal within the Surah. Defaults to `1`.
  * @property currentPageNumber The 1-indexed active Medina Mushaf page ordinal (`1..604`). Defaults to `1`.
+ * @property highlightedAyahNumber The 1-indexed ordinal position of the Ayah focused and highlighted via deep link, or `null`.
  * @property isKhushuMode True if distraction-free immersive reading mode is toggled (hides top bar and bottom dock).
  * @property actionSheetAyah The [Ayah] currently selected for contextual operations in [AyahActionBottomSheet], or `null` if closed.
  * @property isReaderLoading True if Surah detail or Mushaf page data is actively being fetched.
@@ -118,6 +119,7 @@ data class QuranReaderState(
     val currentSurahNumber: Int = 1,
     val currentAyahNumber: Int = 1,
     val currentPageNumber: Int = 1,
+    val highlightedAyahNumber: Int? = null,
     val isKhushuMode: Boolean = false,
     val actionSheetAyah: Ayah? = null,
     val isReaderLoading: Boolean = false,
@@ -256,9 +258,33 @@ sealed interface QuranUiAction {
     /** Returns from single Ayah detail view or reader mode back to the catalog pane. */
     data object BackToCatalog : QuranUiAction
 
+    /**
+     * Closes the active recitation reader and returns smoothly to the catalog pane.
+     *
+     * Halts active recitation audio and resets Khushu' mode, highlighted verse, and reader states.
+     * Dispatched by the system Back button on compact devices and the reader top-bar back icon.
+     *
+     * @see BackToCatalog
+     */
+    data object CloseReaderToCatalog : QuranUiAction
+
     // ==========================================
-    // Reader & Recitation Actions (CMP-605)
+    // Reader & Recitation Actions (CMP-605, CMP-607)
     // ==========================================
+
+    /**
+     * Activates the reader directly for a specific Surah, scrolling to and highlighting the target Ayah.
+     *
+     * Used by widget deep-link intents (CMP-504, CMP-607) and catalog item selections.
+     *
+     * @property surahNumber 1-indexed Surah number (`1..114`).
+     * @property scrollToAyah 1-indexed Ayah number within the Surah to scroll to and highlight. Defaults to `1`.
+     * @see OpenReader
+     */
+    data class OpenSurah(
+        val surahNumber: Int,
+        val scrollToAyah: Int = 1
+    ) : QuranUiAction
 
     /**
      * Activates the reader view for a specific Surah, Ayah, and presentation mode.

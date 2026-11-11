@@ -110,7 +110,7 @@ fun ReaderTopBar(
                         Surface(
                             shape = RoundedCornerShape(10.dp),
                             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                            modifier = Modifier.clickable { onAction(QuranUiAction.BackToCatalog) }
+                            modifier = Modifier.clickable { onAction(QuranUiAction.CloseReaderToCatalog) }
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
