@@ -70,11 +70,22 @@ fun DualMushafSpreadReader(
         }
     }
 
-    // Trigger concurrent spread loading when the user swipes to a new spread
-    LaunchedEffect(pagerState) {
+    // Trigger concurrent spread loading when the user swipes to a new spread or either leaf is missing
+    LaunchedEffect(
+        pagerState,
+        readerState.mushafPage?.pageNumber,
+        readerState.facingMushafPage?.pageNumber
+    ) {
         snapshotFlow { pagerState.currentPage }.collect { spreadIndex ->
             val pageOdd = spreadIndex * 2 + 1
-            if (readerState.currentPageNumber != pageOdd && readerState.currentPageNumber != pageOdd + 1) {
+            val pageEven = (pageOdd + 1).coerceAtMost(604)
+            val hasOddPage = readerState.mushafPage?.pageNumber == pageOdd ||
+                readerState.facingMushafPage?.pageNumber == pageOdd
+            val hasEvenPage = readerState.facingMushafPage?.pageNumber == pageEven ||
+                readerState.mushafPage?.pageNumber == pageEven
+            if ((readerState.currentPageNumber != pageOdd && readerState.currentPageNumber != pageEven) ||
+                ((!hasOddPage || !hasEvenPage) && !readerState.isReaderLoading && !readerState.isFacingPageLoading && readerState.readerError == null)
+            ) {
                 onAction(QuranUiAction.LoadMushafSpread(spreadIndex))
             }
         }
@@ -112,13 +123,18 @@ fun DualMushafSpreadReader(
                 // -------------------------------------------------------------
                 // Right Leaf: Odd Medina Mushaf Page (2k + 1)
                 // -------------------------------------------------------------
+                val isCurrentSpread = readerState.currentPageNumber == pageOdd || readerState.currentPageNumber == pageEven
+                val spreadError = if (isCurrentSpread) readerState.readerError else null
+
                 MushafPageCanvas(
                     pageNumber = pageOdd,
                     pageData = rightPageData,
-                    isLoading = readerState.isReaderLoading && rightPageData == null,
+                    isLoading = rightPageData == null && (readerState.isReaderLoading || spreadError == null),
                     headerBadgeText = if (pageOdd == 1) "RIGHT PANE • ODD PAGE 1 (START)" else "RIGHT PANE • ODD PAGE $pageOdd",
                     highlightGlobalAyahNumber = audioState.currentGlobalAyahNumber,
                     footerText = "— Page $pageOdd (Odd Right Page) —",
+                    errorMessage = spreadError,
+                    onRetry = { onAction(QuranUiAction.LoadMushafSpread(spreadIndex)) },
                     onAyahClicked = { ayah ->
                         onAction(QuranUiAction.SelectSpreadAyah(ayah, isFacingPage = false))
                     },
@@ -153,10 +169,12 @@ fun DualMushafSpreadReader(
                 MushafPageCanvas(
                     pageNumber = pageEven,
                     pageData = leftPageData,
-                    isLoading = readerState.isFacingPageLoading && leftPageData == null,
+                    isLoading = leftPageData == null && (readerState.isFacingPageLoading || spreadError == null),
                     headerBadgeText = "LEFT PANE • EVEN PAGE $pageEven",
                     highlightGlobalAyahNumber = audioState.currentGlobalAyahNumber,
                     footerText = "— Page $pageEven (Even Left Page) —",
+                    errorMessage = spreadError,
+                    onRetry = { onAction(QuranUiAction.LoadMushafSpread(spreadIndex)) },
                     onAyahClicked = { ayah ->
                         onAction(QuranUiAction.SelectSpreadAyah(ayah, isFacingPage = true))
                     },

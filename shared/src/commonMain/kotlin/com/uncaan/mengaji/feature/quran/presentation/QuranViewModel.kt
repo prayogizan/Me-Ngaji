@@ -525,10 +525,14 @@ class QuranViewModel(
                 it.numberInSurah == currentState.currentAyahNumber
             } ?: currentState.surahDetail?.ayahs?.firstOrNull()
             val targetPage = currentAyah?.page ?: currentState.currentPageNumber
+            val provisionalPage = currentState.mushafPage?.takeIf { it.pageNumber == targetPage }
+                ?: buildFallbackMushafPageFromSurahDetail(targetPage, currentState.surahDetail)
             _readerState.update {
                 it.copy(
                     readerMode = ReaderMode.MUSHAF_PAGE,
-                    currentPageNumber = targetPage
+                    currentPageNumber = targetPage,
+                    mushafPage = provisionalPage ?: it.mushafPage,
+                    readerError = null
                 )
             }
             loadMushafPage(targetPage)
@@ -568,16 +572,24 @@ class QuranViewModel(
                     val detail = result.data
                     val resolvedAyah = detail.ayahs.find { it.numberInSurah == targetAyahNumber } ?: detail.ayahs.firstOrNull()
                     val pageNumber = resolvedAyah?.page ?: 1
+                    val isMushafActive = _readerState.value.readerMode == ReaderMode.MUSHAF_PAGE
+                    val provisionalMushafPage = if (isMushafActive) {
+                        _readerState.value.mushafPage?.takeIf { it.pageNumber == pageNumber }
+                            ?: buildFallbackMushafPageFromSurahDetail(pageNumber, detail)
+                    } else {
+                        _readerState.value.mushafPage
+                    }
                     _readerState.update {
                         it.copy(
                             surahDetail = detail,
+                            mushafPage = provisionalMushafPage,
                             currentSurahNumber = surahNumber,
                             currentAyahNumber = resolvedAyah?.numberInSurah ?: targetAyahNumber,
                             currentPageNumber = pageNumber,
-                            isReaderLoading = false
+                            isReaderLoading = isMushafActive
                         )
                     }
-                    if (_readerState.value.readerMode == ReaderMode.MUSHAF_PAGE) {
+                    if (isMushafActive) {
                         loadMushafPage(pageNumber)
                     }
                 }
@@ -621,10 +633,19 @@ class QuranViewModel(
                     }
                 }
                 is AppResult.Error -> {
+                    val fallbackPage = buildFallbackMushafPageFromSurahDetail(
+                        pageNumber = boundedPage,
+                        detail = _readerState.value.surahDetail
+                    )
                     _readerState.update {
                         it.copy(
+                            mushafPage = fallbackPage ?: it.mushafPage,
                             isReaderLoading = false,
-                            readerError = result.message ?: "Failed to load Mushaf page"
+                            readerError = if (fallbackPage == null && it.mushafPage?.pageNumber != boundedPage) {
+                                result.message ?: "Failed to load Mushaf page"
+                            } else {
+                                null
+                            }
                         )
                     }
                 }
@@ -668,11 +689,17 @@ class QuranViewModel(
                 val leftResult = leftDeferred.await()
 
                 val rightPage = (rightResult as? AppResult.Success)?.data
+                    ?: buildFallbackMushafPageFromSurahDetail(pageOdd, _readerState.value.surahDetail)
                 val leftPage = (leftResult as? AppResult.Success)?.data
+                    ?: buildFallbackMushafPageFromSurahDetail(pageEven, _readerState.value.surahDetail)
                 val firstAyah = rightPage?.ayahs?.firstOrNull() ?: leftPage?.ayahs?.firstOrNull()
 
-                val errorMessage = (rightResult as? AppResult.Error)?.message
-                    ?: (leftResult as? AppResult.Error)?.message
+                val errorMessage = if (rightPage == null || leftPage == null) {
+                    (rightResult as? AppResult.Error)?.message
+                        ?: (leftResult as? AppResult.Error)?.message
+                } else {
+                    null
+                }
 
                 _readerState.update {
                     it.copy(
@@ -688,6 +715,33 @@ class QuranViewModel(
                 }
             }
         }
+    }
+
+    private fun buildFallbackMushafPageFromSurahDetail(
+        pageNumber: Int,
+        detail: SurahDetail?
+    ): MushafPage? {
+        if (detail == null) return null
+        val pageAyahs = detail.ayahs.filter { it.page == pageNumber }
+        if (pageAyahs.isEmpty()) return null
+        val firstAyah = pageAyahs.first()
+        return MushafPage(
+            pageNumber = pageNumber,
+            ayahs = pageAyahs,
+            surahs = listOf(
+                SurahSummary(
+                    number = detail.number,
+                    name = detail.name,
+                    englishName = detail.englishName,
+                    englishNameTranslation = detail.englishNameTranslation,
+                    numberOfAyahs = detail.numberOfAyahs,
+                    revelationType = detail.revelationType
+                )
+            ),
+            juzNumber = firstAyah.juz,
+            hizbQuarter = firstAyah.hizbQuarter,
+            translationEdition = detail.translationEdition
+        )
     }
 
     /**
