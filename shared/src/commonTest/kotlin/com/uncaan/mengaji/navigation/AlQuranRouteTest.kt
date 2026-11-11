@@ -32,6 +32,14 @@ class AlQuranRouteTest {
     }
 
     @Test
+    fun alQuranRoute_surahOnlyParameter_ayahNumberIsNull() {
+        val route = AlQuranRoute(surahNumber = 18)
+
+        assertEquals(18, route.surahNumber)
+        assertNull(route.ayahNumber)
+    }
+
+    @Test
     fun alQuranRoute_serializationRoundTrip_defaultValues() {
         val route = AlQuranRoute()
         val serialized = json.encodeToString(route)

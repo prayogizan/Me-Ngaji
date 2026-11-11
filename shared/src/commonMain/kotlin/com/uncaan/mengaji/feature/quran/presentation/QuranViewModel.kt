@@ -211,6 +211,7 @@ class QuranViewModel(
                 loadLastRead()
                 loadBookmarks()
             }
+            QuranUiAction.CloseReaderToCatalog,
             is QuranUiAction.BackToCatalog -> {
                 audioPlayer.stop()
                 _uiState.value = QuranUiState.Initial
@@ -218,14 +219,28 @@ class QuranViewModel(
                     it.copy(
                         isReaderActive = false,
                         isKhushuMode = false,
+                        highlightedAyahNumber = null,
                         actionSheetAyah = null
                     )
                 }
             }
 
-            // Reader & Recitation Actions (CMP-605)
+            // Reader & Recitation Actions (CMP-605, CMP-607)
+            is QuranUiAction.OpenSurah -> {
+                openReader(
+                    surahNumber = action.surahNumber,
+                    ayahNumber = action.scrollToAyah,
+                    mode = ReaderMode.VERSE_LIST,
+                    highlightAyah = action.scrollToAyah
+                )
+            }
             is QuranUiAction.OpenReader -> {
-                openReader(action.surahNumber, action.ayahNumber, action.mode)
+                openReader(
+                    surahNumber = action.surahNumber,
+                    ayahNumber = action.ayahNumber,
+                    mode = action.mode,
+                    highlightAyah = action.ayahNumber
+                )
             }
             is QuranUiAction.SwitchReaderMode -> {
                 switchReaderMode(action.mode)
@@ -449,12 +464,14 @@ class QuranViewModel(
      *
      * @param surahNumber 1-indexed Surah number (`1..114`).
      * @param ayahNumber 1-indexed Ayah number within the Surah. Defaults to `1`.
-     * @param mode The desired [ReaderMode] presentation layout.
+     * @param mode The desired [ReaderMode] presentation layout. Defaults to [ReaderMode.VERSE_LIST].
+     * @param highlightAyah Optional Ayah number to visually highlight in the verse list.
      */
     fun openReader(
         surahNumber: Int,
         ayahNumber: Int = 1,
-        mode: ReaderMode = ReaderMode.VERSE_LIST
+        mode: ReaderMode = ReaderMode.VERSE_LIST,
+        highlightAyah: Int? = ayahNumber
     ) {
         val boundedSurah = surahNumber.coerceIn(1, 114)
         val boundedAyah = ayahNumber.coerceAtLeast(1)
@@ -464,6 +481,7 @@ class QuranViewModel(
                 readerMode = mode,
                 currentSurahNumber = boundedSurah,
                 currentAyahNumber = boundedAyah,
+                highlightedAyahNumber = highlightAyah,
                 isKhushuMode = false,
                 actionSheetAyah = null,
                 readerError = null
@@ -484,6 +502,7 @@ class QuranViewModel(
                 isReaderActive = true,
                 readerMode = ReaderMode.MUSHAF_PAGE,
                 currentPageNumber = boundedPage,
+                highlightedAyahNumber = null,
                 isKhushuMode = false,
                 actionSheetAyah = null,
                 readerError = null
